@@ -55,7 +55,7 @@ class HexMujocoE3DesktopClient(HexMujocoClientBase):
             },
             cmds,
         )
-        print(f"{req_cmd} seq: {self._cmds_seq[robot_name]}")
+        # print(f"{req_cmd} seq: {self._cmds_seq[robot_name]}")
         try:
             cmd = hdr["cmd"]
             if cmd == f"{req_cmd}_ok":

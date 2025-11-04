@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hex_zmq_servers"
-version = "0.2.1"
+version = "0.2.2"
 description = "HEXFELLOW ZMQ Servers"
 readme = "README.md"
 license = "Apache-2.0"
@@ -21,6 +21,7 @@ dependencies = [
   "mujoco>=3.3.3",
   "berxel_py_wrapper>=2.0",
   "hex_device>=1.2.1",
+  "hex_robo_utils>=0.1.15",
   "dynamixel-sdk==3.8.4",
 ]
 classifiers = [

@@ -21,10 +21,14 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from hex_robo_utils import HexCtrlUtilMit as CtrlUtil
 
 MUJOCO_CONFIG = {
     "states_rate": 250,
     "img_rate": 30,
+    "tau_ctrl": False,
+    "mit_kp": [200.0, 200.0, 200.0, 75.0, 15.0, 15.0, 20.0],
+    "mit_kd": [12.5, 12.5, 12.5, 6.0, 0.31, 0.31, 1.0],
     "headless": False,
     "sens_ts": True,
 }
@@ -41,6 +45,9 @@ class HexMujocoE3Desktop(HexMujocoBase):
         try:
             states_rate = mujoco_config["states_rate"]
             img_rate = mujoco_config["img_rate"]
+            self.__tau_ctrl = mujoco_config["tau_ctrl"]
+            self.__mit_kp = mujoco_config["mit_kp"]
+            self.__mit_kd = mujoco_config["mit_kd"]
             self.__headless = mujoco_config["headless"]
             self.__sens_ts = mujoco_config["sens_ts"]
         except KeyError as ke:
@@ -56,10 +63,10 @@ class HexMujocoE3Desktop(HexMujocoBase):
 
         # state init
         self.__state_left_idx = [0, 1, 2, 3, 4, 5, 6]
-        self.__state_right_idx = [14, 15, 16, 17, 18, 19, 20]
-        self.__obj_pose_idx = [28, 29, 30, 31, 32, 33, 34]
+        self.__state_right_idx = [12, 13, 14, 15, 16, 17, 18]
+        self.__obj_pose_idx = [24, 25, 26, 27, 28, 29, 30]
         self.__ctrl_left_idx = [0, 1, 2, 3, 4, 5, 6]
-        self.__ctrl_right_idx = [8, 9, 10, 11, 12, 13, 14]
+        self.__ctrl_right_idx = [7, 8, 9, 10, 11, 12, 13]
         self._limits = np.stack(
             [
                 self.__model.jnt_range[self.__state_left_idx, :],
@@ -67,6 +74,13 @@ class HexMujocoE3Desktop(HexMujocoBase):
             ],
             axis=0,
         )
+        if not self.__tau_ctrl:
+            self.__mit_kp = np.ascontiguousarray(np.asarray(self.__mit_kp))
+            self.__mit_kd = np.ascontiguousarray(np.asarray(self.__mit_kd))
+            self.__mit_ctrl = CtrlUtil()
+        self.__gripper_ratio = 1.33 / 1.52
+        self._limits[0, -1] *= self.__gripper_ratio
+        self._limits[1, -1] *= self.__gripper_ratio
         self._dofs = np.array([
             len(self.__state_left_idx),
             len(self.__state_right_idx),
@@ -87,7 +101,7 @@ class HexMujocoE3Desktop(HexMujocoBase):
         self.__states_trig_thresh = int(self.__sim_rate / states_rate)
 
         # camera init
-        width, height = 400, 400
+        width, height = 640, 400
         head_fovy_rad = self.__model.cam_fovy[0] * np.pi / 180.0
         left_fovy_rad = self.__model.cam_fovy[1] * np.pi / 180.0
         right_fovy_rad = self.__model.cam_fovy[2] * np.pi / 180.0
@@ -95,9 +109,9 @@ class HexMujocoE3Desktop(HexMujocoBase):
         left_focal = 0.5 * height / np.tan(left_fovy_rad / 2.0)
         right_focal = 0.5 * height / np.tan(right_fovy_rad / 2.0)
         self._intri = np.array([
-            [head_focal, head_focal, width / 2, height / 2],
-            [left_focal, left_focal, width / 2, height / 2],
-            [right_focal, right_focal, width / 2, height / 2],
+            [head_focal, head_focal, height / 2, height / 2],
+            [left_focal, left_focal, height / 2, height / 2],
+            [right_focal, right_focal, height / 2, height / 2],
         ])
         self.__rgb_cam = mujoco.Renderer(self.__model, height, width)
         self.__depth_cam = mujoco.Renderer(self.__model, height, width)
@@ -253,12 +267,10 @@ class HexMujocoE3Desktop(HexMujocoBase):
         pos = copy.deepcopy(self.__data.qpos)
         vel = copy.deepcopy(self.__data.qvel)
         eff = copy.deepcopy(self.__data.qfrc_actuator)
-        pos[self.__state_left_idx[-1]] = 0.8 - pos[self.__state_left_idx[-1]]
-        vel[self.__state_left_idx[-1]] *= -1
-        eff[self.__state_left_idx[-1]] *= -1
-        pos[self.__state_right_idx[-1]] = 0.8 - pos[self.__state_right_idx[-1]]
-        vel[self.__state_right_idx[-1]] *= -1
-        eff[self.__state_right_idx[-1]] *= -1
+        pos[self.__state_left_idx[-1]] = pos[
+            self.__state_left_idx[-1]] * self.__gripper_ratio
+        pos[self.__state_right_idx[-1]] = pos[
+            self.__state_right_idx[-1]] * self.__gripper_ratio
         return self.__mujoco_ts() if self.__sens_ts else hex_zmq_ts_now(
         ), np.array([
             pos[self.__state_left_idx],
@@ -271,16 +283,47 @@ class HexMujocoE3Desktop(HexMujocoBase):
         ]).T, self.__data.qpos[self.__obj_pose_idx].copy()
 
     def __set_cmds(self, cmds: np.ndarray, robot_name: str):
-        needed_idx = []
+        ctrl_idx = []
+        state_idx = []
+        limit_idx = None
         if robot_name == "left":
-            needed_idx = self.__ctrl_left_idx
+            ctrl_idx = self.__ctrl_left_idx
+            if not self.__tau_ctrl:
+                state_idx = self.__state_left_idx
+                limit_idx = 0
         elif robot_name == "right":
-            needed_idx = self.__ctrl_right_idx
+            ctrl_idx = self.__ctrl_right_idx
+            if not self.__tau_ctrl:
+                state_idx = self.__state_right_idx
+                limit_idx = 1
         else:
             raise ValueError(f"unknown robot name: {robot_name}")
-        self.__data.ctrl[needed_idx] = cmds
-        self.__data.ctrl[needed_idx[-1]] = 0.8 - cmds[-1]
-        self.__data.ctrl[needed_idx[-1] + 1] = self.__data.ctrl[needed_idx[-1]]
+        tau_cmds = None
+        if not self.__tau_ctrl:
+            if len(cmds.shape) == 1:
+                cmd_pos = cmds.copy()
+                cmd_tor = np.zeros_like(cmds)
+            else:
+                cmd_pos = cmds[:, 0].copy()
+                cmd_tor = cmds[:, 1].copy()
+            cmd_pos[-1] /= self.__gripper_ratio
+            cmd_pos = self._apply_pos_limits(
+                cmd_pos,
+                self._limits[limit_idx, :, 0],
+                self._limits[limit_idx, :, 1],
+            )
+            tau_cmds = self.__mit_ctrl(
+                self.__mit_kp,
+                self.__mit_kd,
+                cmd_pos,
+                np.zeros(len(state_idx)),
+                self.__data.qpos[state_idx],
+                self.__data.qvel[state_idx],
+                cmd_tor,
+            )
+        else:
+            tau_cmds = cmds.copy()
+        self.__data.ctrl[ctrl_idx] = tau_cmds
 
     def __get_rgb(self, camera_name: str):
         self.__rgb_cam.update_scene(self.__data, camera_name)

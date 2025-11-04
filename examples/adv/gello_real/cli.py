@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import numpy as np
 from hex_zmq_servers import (
     HexRate,
@@ -22,7 +15,7 @@ from hex_zmq_servers import (
     HexRobotGelloClient,
     HexRobotHexarmClient,
 )
-from hex_robo_utils import DynUtil
+from hex_robo_utils import HexDynUtil as DynUtil
 
 
 def wait_client_working(client, timeout: float = 5.0) -> bool:
@@ -65,7 +58,7 @@ def main():
 
     # work loop
     rate = HexRate(500)
-    gello_cmds = np.zeros(7 if use_gripper else 6)
+    gello_cmds = None
     while True:
         # hexarm
         hexarm_states_hdr, hexarm_states = hexarm_client.get_states()
@@ -80,9 +73,11 @@ def main():
             tau_comp = c_mat @ arm_dq + g_vec
             if use_gripper:
                 tau_comp = np.concatenate((tau_comp, np.zeros(1)), axis=0)
-            cmds = np.concatenate(
-                (gello_cmds.reshape(-1, 1), tau_comp.reshape(-1, 1)), axis=1)
-            _ = hexarm_client.set_cmds(cmds)
+            if gello_cmds is not None:
+                cmds = np.concatenate(
+                    (gello_cmds.reshape(-1, 1), tau_comp.reshape(-1, 1)),
+                    axis=1)
+                _ = hexarm_client.set_cmds(cmds)
 
         # gello
         gello_states_hdr, gello_states = gello_client.get_states()

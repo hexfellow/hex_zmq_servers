@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import numpy as np
 import pygame
 import pygame.locals as pygconst
@@ -23,7 +16,7 @@ from hex_zmq_servers import (
     hex_log,
     HexRobotHexarmClient,
 )
-from hex_robo_utils import DynUtil
+from hex_robo_utils import HexDynUtil as DynUtil
 from hex_robo_utils import part2trans, trans2part, trans_inv, quat_mul
 
 JOY_BUTTON_MAP = {

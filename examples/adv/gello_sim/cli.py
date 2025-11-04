@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import cv2
 import numpy as np
 from hex_zmq_servers import (
@@ -61,12 +54,18 @@ def main():
 
     # work loop
     rate = HexRate(250)
+    gello_cmds = None
     try:
         while True:
             # gello
             gello_states_hdr, gello_states = gello_client.get_states()
             if gello_states_hdr is not None:
-                _ = mujoco_client.set_cmds(gello_states)
+                gello_cmds = gello_states.copy()
+                # _ = mujoco_client.set_cmds(gello_states)
+
+            # mujoco
+            if gello_cmds is not None:
+                _ = mujoco_client.set_cmds(gello_cmds)
 
             # rgb
             rgb_hdr, rgb = mujoco_client.get_rgb()
