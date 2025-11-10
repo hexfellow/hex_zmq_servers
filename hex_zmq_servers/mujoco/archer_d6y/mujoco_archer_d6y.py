@@ -21,7 +21,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
-from hex_robo_utils import HexCtrlUtilMit as CtrlUtil
+from hex_robo_utils import HexCtrlUtilMitJoint as CtrlUtil
 
 MUJOCO_CONFIG = {
     "states_rate": 250,
