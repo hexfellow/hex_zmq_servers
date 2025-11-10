@@ -41,21 +41,45 @@ hex_zmq_servers/
 
 ### Install from PyPI
 
-For those who only want to use the library in their projects, it is recommended to install it from PyPI.
+1. For those who only want to use the library in their projects, it is recommended to install it from PyPI.
 
-```bash
-pip install hex_zmq_servers
-```
+    ```bash
+    pip install hex_zmq_servers[all]
+    ```
+
+2. If you don't want to install the extra dependencies for extra devices, you can run:
+
+    ```bash
+    pip install hex_zmq_servers
+    ```
 
 ### Install from Source Code
 
-For those who want to test the examples or contribute to the project, you can install it from source code.
+1. For those who want to test the examples or contribute to the project, you can install it from source code.
 
-```bash
-git clone https://github.com/hexfellow/hex_zmq_servers.git
-cd hex_zmq_servers
-./venv.sh --all
-```
+    ```bash
+    git clone https://github.com/hexfellow/hex_zmq_servers.git
+    cd hex_zmq_servers
+    ./venv.sh
+    ```
+
+2. If you don't want to install the extra dependencies for extra devices, you can run:
+
+    ```bash
+    git clone https://github.com/hexfellow/hex_zmq_servers.git
+    cd hex_zmq_servers
+    ./venv.sh --min
+    ```
+
+    (**Important**) Some examples would not work without the extra dependencies.
+
+3. If you don't want to install the examples, you can run:
+
+    ```bash
+    git clone https://github.com/hexfellow/hex_zmq_servers.git
+    cd hex_zmq_servers
+    ./venv.sh --pkg-only
+    ```
 
 ## Examples
 
