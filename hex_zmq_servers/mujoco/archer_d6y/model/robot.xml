@@ -6,7 +6,7 @@
         # link 1
         <body name="link_1" pos="0 0 0.0665">
             <inertial pos="0.008 -0.0023 0.0213" quat="0.707107 0.707107 0 0" mass="0.2154" diaginertia="0.0003 0.0003 0.0002"/>
-            <joint name="joint_1" pos="0 0 0" axis="0 0 1" range="-2.61 3.14" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
+            <joint name="joint_1" pos="0 0 0" axis="0 0 1" range="-2.7 2.7" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
             <geom type="mesh" rgba="0.92549 0.92549 0.92549 1" mesh="arm_link_1"/>
 
             # link 2
@@ -34,11 +34,11 @@
                             <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="arm_link_5"/>
 
                             # gripper base link
-                            <body name="gripper_base_link" pos="0.0547 0 0.02895" quat="0.707107 0.0 -0.707107 0.0">
-                                <inertial pos="0.0141517 0.0120671 0.037083" quat="0.332786 0.772745 0.486202 0.236063" mass="0.404149" diaginertia="0.00182378 0.00177437 0.000232349"/>
+                            <body name="gripper_base_link" pos="0.0578 0 0.02895" quat="0.707107 0.0 -0.707107 0.0">
+                                <inertial pos="-0.0139 0.0001 0.0578" quat="0.567843 0.421372 0.421372 0.567843" mass="0.7651" diaginertia="0.0021 0.00143028 0.00106972"/>
                                 <joint name="joint_6" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
                                 <geom type="mesh" rgba="1 1 1 1" mesh="gripper_base_link"/>
-                                <geom pos="0.04 0 0.12" quat="1 0 0 0" type="mesh" rgba="0.666667 0.698039 0.768627 1" mesh="camera_link" />
+                                <geom pos="0.04 0 0.12" quat="0.6830127 0.6830127 0.1830127 -0.1830127" type="mesh" rgba="0.1 0.1 0.1 1" mesh="camera_link" />
                                 <camera name="end_camera" pos="0.066 0 0.105" quat="0.8660254 0.0 -0.5 0.0" fovy="50"/>
 
                                 # gripper helper
@@ -52,7 +52,6 @@
                                     <joint name="gripper_right_help_joint" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
                                     <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_helper_link"/>
                                 </body>
-
 
                                 # left gripper
                                 <body name="gripper_left_link_1" pos="0.0721 0.014 2.5e-05">

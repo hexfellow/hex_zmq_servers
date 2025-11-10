@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import cv2
 import numpy as np
 from hex_zmq_servers import (
@@ -23,6 +16,7 @@ from hex_zmq_servers import (
     HexRobotGelloClient,
     HexMujocoArcherD6yClient,
 )
+from hex_robo_utils import HexDynUtil as DynUtil
 
 
 def wait_client_working(client, timeout: float = 5.0) -> bool:
@@ -42,6 +36,8 @@ def main():
     cfg = json.loads(args.cfg)
 
     try:
+        model_path = cfg["model_path"]
+        last_link = cfg["last_link"]
         gello_net_cfg = cfg["gello_net_cfg"]
         mujoco_net_cfg = cfg["mujoco_net_cfg"]
     except KeyError as ke:
@@ -50,6 +46,7 @@ def main():
 
     gello_client = HexRobotGelloClient(net_config=gello_net_cfg)
     mujoco_client = HexMujocoArcherD6yClient(net_config=mujoco_net_cfg)
+    dyn_util = DynUtil(model_path, last_link)
 
     # wait servers to work
     if not wait_client_working(gello_client):
@@ -61,12 +58,26 @@ def main():
 
     # work loop
     rate = HexRate(250)
+    gello_cmds = None
     try:
         while True:
             # gello
             gello_states_hdr, gello_states = gello_client.get_states()
             if gello_states_hdr is not None:
-                _ = mujoco_client.set_cmds(gello_states)
+                gello_cmds = gello_states.copy()
+
+            # robot
+            robot_states_hdr, robot_states = mujoco_client.get_states("robot")
+            if robot_states_hdr is not None:
+                arm_q = robot_states[:, 0]
+                arm_dq = robot_states[:, 1]
+                _, c_mat, g_vec, _, _ = dyn_util.dynamic_params(arm_q, arm_dq)
+                tau_comp = c_mat @ arm_dq + g_vec
+                if gello_cmds is not None:
+                    cmds = np.concatenate(
+                        (gello_cmds.reshape(-1, 1), tau_comp.reshape(-1, 1)),
+                        axis=1)
+                    _ = mujoco_client.set_cmds(cmds)
 
             # rgb
             rgb_hdr, rgb = mujoco_client.get_rgb()

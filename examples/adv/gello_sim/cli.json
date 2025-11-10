@@ -1,4 +1,6 @@
 {
+    "model_path": "hex_zmq_servers/robot/hexarm/urdf/archer_l6y/gp100.urdf",
+    "last_link": "link_6",
     "gello_net_cfg": {
         "ip": "127.0.0.1",
         "port": 12345,

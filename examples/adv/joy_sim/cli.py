@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import cv2
 import numpy as np
 import pygame
@@ -24,7 +17,7 @@ from hex_zmq_servers import (
     hex_log,
     HexMujocoArcherD6yClient,
 )
-from hex_robo_utils import DynUtil
+from hex_robo_utils import HexDynUtil as DynUtil
 from hex_robo_utils import quat_mul
 from hex_robo_utils import part2trans, trans2part, trans_inv
 
@@ -116,7 +109,7 @@ def update_tar_pose(
             elif event.axis == JOY_AXIS_MAP["LY"]:
                 tar_vel[1] = -0.5 * deadzone(event.value)
             elif event.axis == JOY_AXIS_MAP["RY"]:
-                tar_omega[2] = deadzone(event.value)
+                tar_omega[2] = -deadzone(event.value)
             elif event.axis == JOY_AXIS_MAP["L2"]:
                 tar_vel[2] = -0.5 * deadzone(0.5 * (event.value + 1.0))
             elif event.axis == JOY_AXIS_MAP["R2"]:
@@ -169,6 +162,26 @@ def interp_joint(cur_q, tar_joint, err_limit=0.05):
         return cur_q + err_norm * err_limit, True
 
 
+def interp_arm(cur_q, tar_joint, grip_flag, use_gripper=True, err_limit=0.05):
+    mid_joint = np.zeros(7 if use_gripper else 6)
+    if use_gripper:
+        mid_joint[:-1], interp_flag = interp_joint(cur_q[:-1],
+                                                   tar_joint,
+                                                   err_limit=err_limit)
+        mid_joint[-1], _ = interp_joint(
+            cur_q[-1],
+            1.33 if grip_flag else 0.2,
+            err_limit=err_limit,
+        )
+    else:
+        mid_joint, interp_flag = interp_joint(
+            cur_q,
+            tar_joint[:-1],
+            err_limit=err_limit,
+        )
+    return mid_joint, interp_flag
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--cfg", type=str, required=True)
@@ -212,8 +225,9 @@ def main():
     hz = 500.0
     period_s = 1.0 / hz
     rate = HexRate(hz)
-    err_limit = 0.05
+    err_limit = 0.1
     cur_q = None
+    tau_comp = np.zeros(7)
     tar_joint = INIT_JOINT.copy()
     tar_pos, tar_quat = dyn_util.forward_kinematics(tar_joint)[-1]
     tar_vel = np.zeros(3)
@@ -227,10 +241,15 @@ def main():
     try:
         while True:
             # current states
-            mujoco_states_hdr, mujoco_states = mujoco_client.get_states(
-                "robot")
-            if mujoco_states_hdr is not None:
-                cur_q = mujoco_states[:, 0]
+            robot_states_hdr, robot_states = mujoco_client.get_states("robot")
+            if robot_states_hdr is not None:
+                cur_q = robot_states[:, 0]
+                cur_dq = robot_states[:, 1]
+                arm_q = cur_q[:-1]
+                arm_dq = cur_dq[:-1]
+                _, c_mat, g_vec, _, _ = dyn_util.dynamic_params(arm_q, arm_dq)
+                tau_comp = c_mat @ arm_dq + g_vec
+                tau_comp = np.concatenate((tau_comp, np.zeros(1)), axis=0)
 
             if cur_q is not None:
                 # update target pose
@@ -257,31 +276,40 @@ def main():
                     tar_pos, tar_quat = trans2part(
                         tar_stable_in_base @ trans_end_in_stable)
 
-                # set cmds
+                # interp joint
                 mid_joint = cur_q.copy()
                 if tar_joint is not None:
-                    mid_joint[:-1], interp_flag = interp_joint(
-                        cur_q[:-1], tar_joint, err_limit=err_limit)
-                    mid_joint[-1], _ = interp_joint(cur_q[-1],
-                                                    1.33 if grip_flag else 0.2,
-                                                    err_limit=err_limit)
+                    mid_joint, interp_flag = interp_arm(
+                        cur_q,
+                        tar_joint,
+                        grip_flag,
+                        use_gripper=True,
+                        err_limit=err_limit,
+                    )
+                    # arrive target joint
                     if not interp_flag:
                         tar_joint = None
                 else:
                     ik_success, ik_q, _ = dyn_util.inverse_kinematics(
                         (tar_pos, tar_quat), cur_q[:-1])
                     if ik_success:
-                        mid_joint[:-1], _ = interp_joint(cur_q[:-1],
-                                                         ik_q,
-                                                         err_limit=err_limit)
-                        mid_joint[-1], _ = interp_joint(
-                            cur_q[-1],
-                            1.33 if grip_flag else 0.2,
-                            err_limit=err_limit)
+                        mid_joint, interp_flag = interp_arm(
+                            cur_q,
+                            ik_q,
+                            grip_flag,
+                            use_gripper=True,
+                            err_limit=err_limit,
+                        )
                     else:
                         tar_pos, tar_quat = dyn_util.forward_kinematics(
                             cur_q[:-1])[-1]
-                mujoco_client.set_cmds(mid_joint)
+
+                # set cmds
+                cmds = np.concatenate(
+                    (mid_joint.reshape(-1, 1), tau_comp.reshape(-1, 1)),
+                    axis=1,
+                )
+                _ = mujoco_client.set_cmds(cmds)
 
             # rgb
             rgb_hdr, rgb = mujoco_client.get_rgb()

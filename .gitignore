@@ -168,3 +168,5 @@ temp
 
 logs/
 test_logs/
+plots/
+csv/

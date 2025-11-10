@@ -6,17 +6,15 @@
         <exclude body1="left_link_2" body2="left_link_3" />
         <exclude body1="left_link_3" body2="left_link_4" />
         <exclude body1="left_link_4" body2="left_link_5" />
-        <exclude body1="left_link_5" body2="left_picker_base_link" />
-        <exclude body1="left_picker_base_link" body2="left_picker_narrow1_link" />
-        <exclude body1="left_picker_narrow1_link" body2="left_picker_narrow2_link" />
-        <exclude body1="left_picker_narrow2_link" body2="left_picker_narrow3_link" />
-        <exclude body1="left_picker_narrow3_link" body2="left_picker_narrow_loop_link" />
-        <exclude body1="left_picker_narrow_loop_link" body2="left_picker_base_link" />
-        <exclude body1="left_picker_base_link" body2="left_picker_wide1_link" />
-        <exclude body1="left_picker_wide1_link" body2="left_picker_wide2_link" />
-        <exclude body1="left_picker_wide2_link" body2="left_picker_wide3_link" />
-        <exclude body1="left_picker_wide3_link" body2="left_picker_wide_loop_link" />
-        <exclude body1="left_picker_wide_loop_link" body2="left_picker_base_link" />
+        <exclude body1="left_link_5" body2="left_gripper_base_link" />
+        <exclude body1="left_gripper_base_link" body2="left_gripper_left_helper_link" />
+        <exclude body1="left_gripper_left_helper_link" body2="left_gripper_left_link_1" />
+        <exclude body1="left_gripper_left_helper_link" body2="left_gripper_left_link_2" />
+        <exclude body1="left_gripper_left_link_1" body2="left_gripper_left_link_2" />
+        <exclude body1="left_gripper_base_link" body2="left_gripper_right_helper_link" />
+        <exclude body1="left_gripper_right_helper_link" body2="left_gripper_right_link_1" />
+        <exclude body1="left_gripper_right_helper_link" body2="left_gripper_right_link_2" />
+        <exclude body1="left_gripper_right_link_1" body2="left_gripper_right_link_2" />
 
         # right arm
         <exclude body1="base_link" body2="right_link_1" />
@@ -24,49 +22,51 @@
         <exclude body1="right_link_2" body2="right_link_3" />
         <exclude body1="right_link_3" body2="right_link_4" />
         <exclude body1="right_link_4" body2="right_link_5" />
-        <exclude body1="right_link_5" body2="right_picker_base_link" />
-        <exclude body1="right_picker_base_link" body2="right_picker_narrow1_link" />
-        <exclude body1="right_picker_narrow1_link" body2="right_picker_narrow2_link" />
-        <exclude body1="right_picker_narrow2_link" body2="right_picker_narrow3_link" />
-        <exclude body1="right_picker_narrow3_link" body2="right_picker_narrow_loop_link" />
-        <exclude body1="right_picker_narrow_loop_link" body2="right_picker_base_link" />
-        <exclude body1="right_picker_base_link" body2="right_picker_wide1_link" />
-        <exclude body1="right_picker_wide1_link" body2="right_picker_wide2_link" />
-        <exclude body1="right_picker_wide2_link" body2="right_picker_wide3_link" />
-        <exclude body1="right_picker_wide3_link" body2="right_picker_wide_loop_link" />
-        <exclude body1="right_picker_wide_loop_link" body2="right_picker_base_link" />
+        <exclude body1="right_link_5" body2="right_gripper_base_link" />
+        <exclude body1="right_gripper_base_link" body2="right_gripper_left_helper_link" />
+        <exclude body1="right_gripper_left_helper_link" body2="right_gripper_left_link_1" />
+        <exclude body1="right_gripper_left_helper_link" body2="right_gripper_left_link_2" />
+        <exclude body1="right_gripper_left_link_1" body2="right_gripper_left_link_2" />
+        <exclude body1="right_gripper_base_link" body2="right_gripper_right_helper_link" />
+        <exclude body1="right_gripper_right_helper_link" body2="right_gripper_right_link_1" />
+        <exclude body1="right_gripper_right_helper_link" body2="right_gripper_right_link_2" />
+        <exclude body1="right_gripper_right_link_1" body2="right_gripper_right_link_2" />
     </contact>
 
     <equality>
         # left arm
-        <connect body1="left_picker_narrow_loop_link" body2="left_picker_narrow3_link" anchor="0.03153 -0.00975 0.0" />
-        <connect body1="left_picker_wide_loop_link" body2="left_picker_wide3_link" anchor="0.03153 0.00975 0.0" />
+        <joint joint1="left_gripper_left_joint_1" joint2="left_gripper_left_joint_2" />
+        <joint joint1="left_gripper_left_joint_1" joint2="left_gripper_left_help_joint" />
+        <joint joint1="left_gripper_left_joint_1" joint2="left_gripper_right_joint_1" />
+        <joint joint1="left_gripper_left_joint_1" joint2="left_gripper_right_joint_2" />
+        <joint joint1="left_gripper_left_joint_1" joint2="left_gripper_right_help_joint" />
 
         # right arm
-        <connect body1="right_picker_narrow_loop_link" body2="right_picker_narrow3_link" anchor="0.03153 -0.00975 0.0" />
-        <connect body1="right_picker_wide_loop_link" body2="right_picker_wide3_link" anchor="0.03153 0.00975 0.0" />
+        <joint joint1="right_gripper_left_joint_1" joint2="right_gripper_left_joint_2" />
+        <joint joint1="right_gripper_left_joint_1" joint2="right_gripper_left_help_joint" />
+        <joint joint1="right_gripper_left_joint_1" joint2="right_gripper_right_joint_1" />
+        <joint joint1="right_gripper_left_joint_1" joint2="right_gripper_right_joint_2" />
+        <joint joint1="right_gripper_left_joint_1" joint2="right_gripper_right_help_joint" />
     </equality>
 
     <actuator>
         # left arm
-        <position joint="left_joint_1" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-2.7 2.7" forcerange="-30 30"/>
-        <position joint="left_joint_2" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 2.09" forcerange="-30 30"/>
-        <position joint="left_joint_3" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0 3.14" forcerange="-30 30"/>
-        <position joint="left_joint_4" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="left_joint_5" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="left_joint_6" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="left_hand_narrow1_joint" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0.0 0.8" forcerange="-20 20"/>
-        <position joint="left_hand_wide1_joint" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0.0 0.8" forcerange="-20 20"/>
+        <motor joint="left_joint_1" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="left_joint_2" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="left_joint_3" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="left_joint_4" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="left_joint_5" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="left_joint_6" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="left_gripper_left_joint_1" ctrlrange="-10 10" forcerange="-10 10"/>
 
         # right arm
-        <position joint="right_joint_1" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-2.7 2.7" forcerange="-30 30"/>
-        <position joint="right_joint_2" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 2.09" forcerange="-30 30"/>
-        <position joint="right_joint_3" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0 3.14" forcerange="-30 30"/>
-        <position joint="right_joint_4" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="right_joint_5" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="right_joint_6" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="right_hand_narrow1_joint" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0.0 0.8" forcerange="-20 20"/>
-        <position joint="right_hand_wide1_joint" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0.0 0.8" forcerange="-20 20"/>
+        <motor joint="right_joint_1" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="right_joint_2" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="right_joint_3" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="right_joint_4" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="right_joint_5" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="right_joint_6" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="right_gripper_left_joint_1" ctrlrange="-10 10" forcerange="-10 10"/>
     </actuator>
 
 </mujocoinclude>

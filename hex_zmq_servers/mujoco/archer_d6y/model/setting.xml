@@ -19,20 +19,19 @@
     <equality>
         <joint joint1="gripper_left_joint_1" joint2="gripper_left_joint_2" />
         <joint joint1="gripper_left_joint_1" joint2="gripper_left_help_joint" />
-        <joint joint1="gripper_left_joint_1" joint2="gripper_left_joint_2" />
         <joint joint1="gripper_left_joint_1" joint2="gripper_right_joint_1" />
         <joint joint1="gripper_left_joint_1" joint2="gripper_right_joint_2" />
         <joint joint1="gripper_left_joint_1" joint2="gripper_right_help_joint" />
     </equality>
 
     <actuator>
-        <position joint="joint_1" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-2.7 2.7" forcerange="-30 30"/>
-        <position joint="joint_2" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 2.09" forcerange="-30 30"/>
-        <position joint="joint_3" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="0 3.14" forcerange="-30 30"/>
-        <position joint="joint_4" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="joint_5" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="joint_6" kp="1500" kv="15.0" ctrllimited="true" ctrlrange="-1.57 1.57" forcerange="-30 30"/>
-        <position joint="gripper_left_joint_1" kp="100" kv="0.5" ctrllimited="true" ctrlrange="0.0 1.52" forcerange="-5 5"/>
+        <motor joint="joint_1" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="joint_2" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="joint_3" ctrlrange="-28 28" forcerange="-28 28"/>
+        <motor joint="joint_4" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="joint_5" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="joint_6" ctrlrange="-10 10" forcerange="-10 10"/>
+        <motor joint="gripper_left_joint_1" ctrlrange="-10 10" forcerange="-10 10"/>
     </actuator>
 
 </mujocoinclude>

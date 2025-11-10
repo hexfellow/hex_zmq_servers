@@ -10,7 +10,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/base_link.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/base_link.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -19,7 +19,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/base_link.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/base_link.STL" />
             </geometry>
         </collision>
     </link>
@@ -33,7 +33,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_1.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_1.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -42,7 +42,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_1.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_1.STL" />
             </geometry>
         </collision>
     </link>
@@ -63,7 +63,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_2.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_2.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -72,7 +72,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_2.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_2.STL" />
             </geometry>
         </collision>
     </link>
@@ -93,7 +93,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_3.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_3.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -102,7 +102,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_3.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_3.STL" />
             </geometry>
         </collision>
     </link>
@@ -123,7 +123,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_4.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_4.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -132,7 +132,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_4.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_4.STL" />
             </geometry>
         </collision>
     </link>
@@ -153,7 +153,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_5.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_5.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -162,7 +162,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_5.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_5.STL" />
             </geometry>
         </collision>
     </link>
@@ -183,7 +183,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_6.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_6.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -192,7 +192,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_6.dae" />
+                <mesh filename="package://xpkg_urdf_archer_d6y/meshes/link_6.STL" />
             </geometry>
         </collision>
     </link>

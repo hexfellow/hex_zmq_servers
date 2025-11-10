@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import numpy as np
 import pygame
 import pygame.locals as pygconst
@@ -23,7 +16,7 @@ from hex_zmq_servers import (
     hex_log,
     HexRobotHexarmClient,
 )
-from hex_robo_utils import DynUtil
+from hex_robo_utils import HexDynUtil as DynUtil
 from hex_robo_utils import part2trans, trans2part, trans_inv, quat_mul
 
 JOY_BUTTON_MAP = {
@@ -114,7 +107,7 @@ def update_tar_pose(
             elif event.axis == JOY_AXIS_MAP["LY"]:
                 tar_vel[1] = -0.5 * deadzone(event.value)
             elif event.axis == JOY_AXIS_MAP["RY"]:
-                tar_omega[2] = deadzone(event.value)
+                tar_omega[2] = -deadzone(event.value)
             elif event.axis == JOY_AXIS_MAP["L2"]:
                 tar_vel[2] = -0.5 * deadzone(0.5 * (event.value + 1.0))
             elif event.axis == JOY_AXIS_MAP["R2"]:
@@ -275,7 +268,7 @@ def main():
                 tar_stable_in_base = tar_end_in_base @ trans_stable_in_end
                 tar_stable_pos = tar_stable_in_base[:3, 3].copy()
                 tar_stable_dist = np.linalg.norm(tar_stable_pos)
-                valid_dist = np.clip(tar_stable_dist, 0.1, 0.6)
+                valid_dist = np.clip(tar_stable_dist, 0.3, 0.7)
                 tar_stable_pos = tar_stable_pos / tar_stable_dist * valid_dist
                 tar_stable_in_base[:3, 3] = tar_stable_pos
                 tar_pos, tar_quat = trans2part(

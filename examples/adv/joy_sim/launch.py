@@ -11,7 +11,16 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
 
-from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
+from hex_zmq_servers import (
+    HexLaunch,
+    HEX_ZMQ_SERVERS_PATH_DICT,
+    HEX_ZMQ_CONFIGS_PATH_DICT,
+    HEXARM_URDF_PATH_DICT,
+)
+
+# robot model config
+ARM_TYPE = "archer_d6y"
+GRIPPER_TYPE = "gp100_p050"
 
 # server ports
 MUJOCO_SRV_PORT = 12345
@@ -23,8 +32,7 @@ NODE_CFGS = [
         "node_path": f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/joy_sim/cli.py",
         "cfg_path": f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/joy_sim/cli.json",
         "cfg": {
-            "model_path":
-            f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/urdf/archer_d6y.urdf",
+            "model_path": HEXARM_URDF_PATH_DICT[f"{ARM_TYPE}_{GRIPPER_TYPE}"],
             "last_link": "link_6",
             "mujoco_net_cfg": {
                 "port": MUJOCO_SRV_PORT,
@@ -43,6 +51,11 @@ NODE_CFGS = [
             "params": {
                 "states_rate": 250,
                 "img_rate": 30,
+                "tau_ctrl": False,
+                # "mit_kp": [200.0, 200.0, 200.0, 75.0, 15.0, 15.0, 20.0],
+                # "mit_kd": [12.5, 12.5, 12.5, 6.0, 0.31, 0.31, 1.0],
+                "mit_kp": [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0],
+                "mit_kd": [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
                 "headless": False,
                 "sens_ts": True,
             },

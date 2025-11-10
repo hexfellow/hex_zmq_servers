@@ -182,7 +182,7 @@
         <visual>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_l6y/meshes/link_6.dae" />
+                <mesh filename="package://xpkg_urdf_archer_l6y/meshes/link_6.STL" />
             </geometry>
             <material name="">
                 <color rgba="1 1 1 1" />
@@ -191,7 +191,7 @@
         <collision>
             <origin xyz="0 0 0" rpy="0 0 0" />
             <geometry>
-                <mesh filename="package://xpkg_urdf_archer_l6y/meshes/link_6.dae" />
+                <mesh filename="package://xpkg_urdf_archer_l6y/meshes/link_6.STL" />
             </geometry>
         </collision>
     </link>

@@ -4,13 +4,13 @@
         <geom type="mesh" rgba="1 1 1 1" mesh="e3_desktop_base_link" contype="0" conaffinity="0" />
         <geom pos="0.0185 0.3 0.14502" quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="arm_base_link"/>
         <geom pos="0.0185 -0.3 0.14502" quat="1 0 0 0" type="mesh" rgba="1 1 1 1" mesh="arm_base_link"/>
-        <camera name="head_camera" pos="0.084 0 0.52075" quat="0.6532815 0.2705981 -0.2705981 -0.6532815" fovy="70"/>
         <geom pos="0.074 0 0.53575" quat="0.9238795 0.0 0.3826834 0.0" type="mesh" mesh="camera_link" rgba="0.1 0.1 0.1 1" contype="0" conaffinity="0" />
+        <camera name="head_camera" pos="0.084 0 0.52075" quat="0.6532815 0.2705981 -0.2705981 -0.6532815" fovy="70"/>
 
         # left link 1
         <body name="left_link_1" pos="0.0185 0.3 0.21152">
             <inertial pos="0.008 -0.0023 0.0213" quat="0.707107 0.707107 0 0" mass="0.2154" diaginertia="0.0003 0.0003 0.0002"/>
-            <joint name="left_joint_1" pos="0 0 0" axis="0 0 1" range="-2.61 3.14" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
+            <joint name="left_joint_1" pos="0 0 0" axis="0 0 1" range="-2.7 2.7" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
             <geom type="mesh" rgba="0.92549 0.92549 0.92549 1" mesh="arm_link_1"/>
 
             # left link 2
@@ -37,64 +37,50 @@
                             <joint name="left_joint_5" pos="0 0 0" axis="-1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
                             <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="arm_link_5"/>
 
-                            # left picker base link
-                            <body name="left_picker_base_link" pos="0.0547 0 0.02895">
-                                <inertial pos="0.00913219 -0.00104428 0.0437714" quat="0.779177 -0.153227 -0.105966 0.598478" mass="0.416893" diaginertia="0.00112999 0.000894143 0.000426247"/>
-                                <joint name="left_joint_6" pos="0 0 0" axis="0 0 1" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
-                                <geom pos="0 0 0.005" type="mesh" mesh="picker_base_link" rgba="0.75 0.75 0.75 1.0" />
-                                <camera name="left_camera" pos="-0.07 0.0 0.03" quat="0.1227878 0.6963642 -0.6963642 -0.1227878" fovy="50"/>
-                                <geom pos="-0.08 0.0 0.015" quat="0.819152 0.0 -0.5735764 0.0" type="mesh" mesh="camera_link" rgba="0.1 0.1 0.1 1" contype="0" conaffinity="0" />
+                            # left gripper base link
+                            <body name="left_gripper_base_link" pos="0.0578 0 0.02895" quat="0.707107 0.0 -0.707107 0.0">
+                                <inertial pos="-0.0139 0.0001 0.0578" quat="0.567843 0.421372 0.421372 0.567843" mass="0.7651" diaginertia="0.0021 0.00143028 0.00106972"/>
+                                <joint name="left_joint_6" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
+                                <geom type="mesh" rgba="1 1 1 1" mesh="gripper_base_link"/>
+                                <geom pos="0.04 0 0.12" quat="0.6830127 0.6830127 0.1830127 -0.1830127" type="mesh" rgba="0.1 0.1 0.1 1" mesh="camera_link" />
+                                <camera name="left_camera" pos="0.066 0 0.105" quat="0.8660254 0.0 -0.5 0.0" fovy="50"/>
 
-                                # left narrow gripper
-                                <body name="left_picker_narrow1_link" pos="0 -0.0195 0.0565" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.0094685 0.0068806 6.5437e-05" quat="0.488058 0.00022793 0.00062709 0.872811" mass="0.025428" diaginertia="2.65562e-06 1.69368e-06 1.5501e-06"/>
-                                    <joint name="left_hand_narrow1_joint" pos="0 0 0" axis="0 0 1" range="0.0 0.8" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
-                                    <geom type="mesh" mesh="picker_narrow1_link" rgba="0.75 0.75 0.75 1.0" />
+                                # gripper helper
+                                <body name="left_gripper_left_helper_link" pos="0.057667 0.030604 2.5e-05">
+                                    <inertial pos="0.00299357 0.0232625 -5e-05" quat="0.996724 0 0 0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="left_gripper_left_help_joint" pos="0 0 0" axis="0 0 -1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_left_helper_link"/>
+                                </body>
+                                <body name="left_gripper_right_helper_link" pos="0.057667 -0.030604 2.5e-05">
+                                    <inertial pos="0.00299357 -0.0232625 -5e-05" quat="0.996724 0 0 -0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="left_gripper_right_help_joint" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_helper_link"/>
+                                </body>
 
-                                    <body name="left_picker_narrow2_link" pos="0.030852 0.018551 0">
-                                        <inertial pos="0.0088027 -0.007035 1.6424e-05" quat="0.259339 0.661207 -0.251356 0.657547" mass="0.0040132" diaginertia="1.70091e-07 1.66561e-07 5.03584e-08"/>
-                                        <joint name="left_hand_narrow2_joint" pos="0 0 0" axis="0 0 -1" range="-1.57 1.57" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" springref="-0.01" stiffness="1.0" />
-                                        <geom type="mesh" mesh="picker_narrow2_link" rgba="0.75 0.75 0.75 1.0" />
+                                # left gripper
+                                <body name="left_gripper_left_link_1" pos="0.0721 0.014 2.5e-05">
+                                    <inertial pos="0.00299357 0.0232625 -5e-05" quat="0.996724 0 0 0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="left_gripper_left_joint_1" pos="0 0 0" axis="0 0 -1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_left_link_1"/>
 
-                                        <body name="left_picker_narrow3_link" pos="0.018118 -0.01574 0">
-                                            <inertial pos="0.012508 -0.0079729 9.4339e-05" quat="0.575033 0.575033 0.411506 0.411506" mass="0.018029" diaginertia="2.75843e-06 2.3252e-06 9.52273e-07"/>
-                                            <joint name="left_hand_narrow3_joint" pos="0 0 0" axis="0 0 -1" range="-0.5 0.5" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" />
-                                            <geom type="mesh" mesh="picker_narrow3_link" rgba="0.75 0.75 0.75 1.0" />
-                                        </body>
+                                    <body name="left_gripper_left_link_2" pos="0.0085108 0.04927 0">
+                                        <inertial pos="0.0255016 0.00914642 -0.00175617" quat="0.424541 0.412629 0.571518 0.568216" mass="0.0339319" diaginertia="1.36949e-05 1.35554e-05 3.4264e-06"/>
+                                        <joint name="left_gripper_left_joint_2" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                        <geom type="mesh" rgba="1 1 1 1" mesh="gripper_left_link_2"/>
                                     </body>
                                 </body>
 
-                                # left narrow helper
-                                <body name="left_picker_narrow_loop_link" pos="0 -0.021633 0.07387" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.014869 -0.0036066 0.00029307" quat="0.800794 2.10378e-06 -6.78039e-07 0.59894" mass="0.022591" diaginertia="4.76981e-06 4.35879e-06 6.0445e-07"/>
-                                    <joint name="left_hand_narrow_loop_joint" pos="0 0 0" axis="0 0 -1" limited="auto" armature="0.0" damping="0.01" frictionloss="0.01" />
-                                    <geom type="mesh" mesh="picker_narrow_loop_link" rgba="0.75 0.75 0.75 1.0" />
-                                </body>
+                                # right gripper
+                                <body name="left_gripper_right_link_1" pos="0.0721 -0.014 2.5e-05">
+                                    <inertial pos="0.00299357 -0.0232625 -5e-05" quat="0.996724 0 0 -0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="left_gripper_right_joint_1" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_link_1"/>
 
-                                # left wide gripper
-                                <body name="left_picker_wide1_link" pos="0 0.0195 0.0565" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.0095051 -0.0068479 6.8268e-05" quat="0.872477 -0.000843631 -0.000472499 0.488655" mass="0.025428" diaginertia="2.65502e-06 1.69428e-06 1.5501e-06"/>
-                                    <joint name="left_hand_wide1_joint" pos="0 0 0" axis="0 0 -1" range="0.0 0.8" limited="true" armature="0.1" damping="1.0" frictionloss="0.1" />
-                                    <geom type="mesh" mesh="picker_wide1_link" rgba="0.75 0.75 0.75 1.0" />
-
-                                    <body name="left_picker_wide2_link" pos="0.030852 -0.018551 0">
-                                        <inertial pos="0.0088027 0.007035 -1.6424e-05" quat="-0.251356 0.657548 0.259339 0.661207" mass="0.0040132" diaginertia="1.70091e-07 1.66561e-07 5.03584e-08"/>
-                                        <joint name="left_hand_wide2_joint" pos="0 0 0" axis="0 0 -1" range="-1.57 1.57" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" springref="0.01" stiffness="1.0" />
-                                        <geom type="mesh" mesh="picker_wide2_link" rgba="0.75 0.75 0.75 1.0" />
-
-                                        <body name="left_picker_wide3_link" pos="0.018118 0.01574 0">
-                                            <inertial pos="0.016206 0.0094593 4.7668e-05" quat="0.574355 3.4175e-06 6.47256e-06 0.818606" mass="0.035835" diaginertia="1.16461e-05 8.09447e-06 4.6309e-06"/>
-                                            <joint name="left_hand_wide3_joint" pos="0 0 0" axis="0 0 -1" range="-0.5 0.5" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" />
-                                            <geom type="mesh" mesh="picker_wide3_link" rgba="0.75 0.75 0.75 1.0" />
-                                        </body>
+                                    <body name="left_gripper_right_link_2" pos="0.0085108 -0.04927 0">
+                                        <inertial pos="0.0255016 -0.00914642 -0.00175616" quat="0.568212 0.571522 0.412623 0.424547" mass="0.0339319" diaginertia="1.36948e-05 1.35553e-05 3.4264e-06"/>
+                                        <joint name="left_gripper_right_joint_2" pos="0 0 0" axis="0 0 -1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                        <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_link_2"/>
                                     </body>
-                                </body>
-
-                                # left wide helper
-                                <body name="left_picker_wide_loop_link" pos="0 0.021633 0.07387" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.016268 0.0040555 0.00030323" quat="0.599119 -2.137e-06 -5.96717e-07 0.80066" mass="0.025142" diaginertia="6.26903e-06 5.85397e-06 6.2389e-07"/>
-                                    <joint name="left_hand_wide_loop_joint" pos="0 0 0" axis="0 0 -1" limited="auto" armature="0.0" damping="0.01" frictionloss="0.01" />
-                                    <geom type="mesh" mesh="picker_wide_loop_link" rgba="0.75 0.75 0.75 1.0" />
                                 </body>
                             </body>
                         </body>
@@ -106,7 +92,7 @@
         # right link 1
         <body name="right_link_1" pos="0.0185 -0.3 0.21152">
             <inertial pos="0.008 -0.0023 0.0213" quat="0.707107 0.707107 0 0" mass="0.2154" diaginertia="0.0003 0.0003 0.0002"/>
-            <joint name="right_joint_1" pos="0 0 0" axis="0 0 1" range="-2.61 3.14" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
+            <joint name="right_joint_1" pos="0 0 0" axis="0 0 1" range="-2.7 2.7" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
             <geom type="mesh" rgba="0.92549 0.92549 0.92549 1" mesh="arm_link_1"/>
 
             # right link 2
@@ -133,64 +119,50 @@
                             <joint name="right_joint_5" pos="0 0 0" axis="-1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
                             <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="arm_link_5"/>
 
-                            # right picker base link
-                            <body name="right_picker_base_link" pos="0.0547 0 0.02895">
-                                <inertial pos="0.00913219 -0.00104428 0.0437714" quat="0.779177 -0.153227 -0.105966 0.598478" mass="0.416893" diaginertia="0.00112999 0.000894143 0.000426247"/>
-                                <joint name="right_joint_6" pos="0 0 0" axis="0 0 1" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
-                                <geom pos="0 0 0.005" type="mesh" mesh="picker_base_link" rgba="0.75 0.75 0.75 1.0" />
-                                <camera name="right_camera" pos="-0.07 0.0 0.03" quat="0.1227878 0.6963642 -0.6963642 -0.1227878" fovy="50"/>
-                                <geom pos="-0.08 0.0 0.015" quat="0.819152 0.0 -0.5735764 0.0" type="mesh" mesh="camera_link" rgba="0.1 0.1 0.1 1" contype="0" conaffinity="0" />
+                            # right gripper base link
+                            <body name="right_gripper_base_link" pos="0.0578 0 0.02895" quat="0.707107 0.0 -0.707107 0.0">
+                                <inertial pos="-0.0139 0.0001 0.0578" quat="0.567843 0.421372 0.421372 0.567843" mass="0.7651" diaginertia="0.0021 0.00143028 0.00106972"/>
+                                <joint name="right_joint_6" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
+                                <geom type="mesh" rgba="1 1 1 1" mesh="gripper_base_link"/>
+                                <geom pos="0.04 0 0.12" quat="0.6830127 0.6830127 0.1830127 -0.1830127" type="mesh" rgba="0.1 0.1 0.1 1" mesh="camera_link" />
+                                <camera name="right_camera" pos="0.066 0 0.105" quat="0.8660254 0.0 -0.5 0.0" fovy="50"/>
 
-                                # right narrow gripper
-                                <body name="right_picker_narrow1_link" pos="0 -0.0195 0.0565" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.0094685 0.0068806 6.5437e-05" quat="0.488058 0.00022793 0.00062709 0.872811" mass="0.025428" diaginertia="2.65562e-06 1.69368e-06 1.5501e-06"/>
-                                    <joint name="right_hand_narrow1_joint" pos="0 0 0" axis="0 0 1" range="0.0 0.8" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
-                                    <geom type="mesh" mesh="picker_narrow1_link" rgba="0.75 0.75 0.75 1.0" />
+                                # gripper helper
+                                <body name="right_gripper_left_helper_link" pos="0.057667 0.030604 2.5e-05">
+                                    <inertial pos="0.00299357 0.0232625 -5e-05" quat="0.996724 0 0 0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="right_gripper_left_help_joint" pos="0 0 0" axis="0 0 -1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_left_helper_link"/>
+                                </body>
+                                <body name="right_gripper_right_helper_link" pos="0.057667 -0.030604 2.5e-05">
+                                    <inertial pos="0.00299357 -0.0232625 -5e-05" quat="0.996724 0 0 -0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="right_gripper_right_help_joint" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_helper_link"/>
+                                </body>
 
-                                    <body name="right_picker_narrow2_link" pos="0.030852 0.018551 0">
-                                        <inertial pos="0.0088027 -0.007035 1.6424e-05" quat="0.259339 0.661207 -0.251356 0.657547" mass="0.0040132" diaginertia="1.70091e-07 1.66561e-07 5.03584e-08"/>
-                                        <joint name="right_hand_narrow2_joint" pos="0 0 0" axis="0 0 -1" range="-1.57 1.57" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" springref="-0.01" stiffness="1.0" />
-                                        <geom type="mesh" mesh="picker_narrow2_link" rgba="0.75 0.75 0.75 1.0" />
+                                # left gripper
+                                <body name="right_gripper_left_link_1" pos="0.0721 0.014 2.5e-05">
+                                    <inertial pos="0.00299357 0.0232625 -5e-05" quat="0.996724 0 0 0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="right_gripper_left_joint_1" pos="0 0 0" axis="0 0 -1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_left_link_1"/>
 
-                                        <body name="right_picker_narrow3_link" pos="0.018118 -0.01574 0">
-                                            <inertial pos="0.012508 -0.0079729 9.4339e-05" quat="0.575033 0.575033 0.411506 0.411506" mass="0.018029" diaginertia="2.75843e-06 2.3252e-06 9.52273e-07"/>
-                                            <joint name="right_hand_narrow3_joint" pos="0 0 0" axis="0 0 -1" range="-0.5 0.5" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" />
-                                            <geom type="mesh" mesh="picker_narrow3_link" rgba="0.75 0.75 0.75 1.0" />
-                                        </body>
+                                    <body name="right_gripper_left_link_2" pos="0.0085108 0.04927 0">
+                                        <inertial pos="0.0255016 0.00914642 -0.00175617" quat="0.424541 0.412629 0.571518 0.568216" mass="0.0339319" diaginertia="1.36949e-05 1.35554e-05 3.4264e-06"/>
+                                        <joint name="right_gripper_left_joint_2" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                        <geom type="mesh" rgba="1 1 1 1" mesh="gripper_left_link_2"/>
                                     </body>
                                 </body>
 
-                                # right narrow helper
-                                <body name="right_picker_narrow_loop_link" pos="0 -0.021633 0.07387" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.014869 -0.0036066 0.00029307" quat="0.800794 2.10378e-06 -6.78039e-07 0.59894" mass="0.022591" diaginertia="4.76981e-06 4.35879e-06 6.0445e-07"/>
-                                    <joint name="right_hand_narrow_loop_joint" pos="0 0 0" axis="0 0 -1" limited="auto" armature="0.0" damping="0.01" frictionloss="0.01" />
-                                    <geom type="mesh" mesh="picker_narrow_loop_link" rgba="0.75 0.75 0.75 1.0" />
-                                </body>
+                                # right gripper
+                                <body name="right_gripper_right_link_1" pos="0.0721 -0.014 2.5e-05">
+                                    <inertial pos="0.00299357 -0.0232625 -5e-05" quat="0.996724 0 0 -0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
+                                    <joint name="right_gripper_right_joint_1" pos="0 0 0" axis="0 0 1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                    <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_link_1"/>
 
-                                # right wide gripper
-                                <body name="right_picker_wide1_link" pos="0 0.0195 0.0565" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.0095051 -0.0068479 6.8268e-05" quat="0.872477 -0.000843631 -0.000472499 0.488655" mass="0.025428" diaginertia="2.65502e-06 1.69428e-06 1.5501e-06"/>
-                                    <joint name="right_hand_wide1_joint" pos="0 0 0" axis="0 0 -1" range="0.0 0.8" limited="true" armature="0.1" damping="1.0" frictionloss="0.1" />
-                                    <geom type="mesh" mesh="picker_wide1_link" rgba="0.75 0.75 0.75 1.0" />
-
-                                    <body name="right_picker_wide2_link" pos="0.030852 -0.018551 0">
-                                        <inertial pos="0.0088027 0.007035 -1.6424e-05" quat="-0.251356 0.657548 0.259339 0.661207" mass="0.0040132" diaginertia="1.70091e-07 1.66561e-07 5.03584e-08"/>
-                                        <joint name="right_hand_wide2_joint" pos="0 0 0" axis="0 0 -1" range="-1.57 1.57" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" springref="0.01" stiffness="1.0" />
-                                        <geom type="mesh" mesh="picker_wide2_link" rgba="0.75 0.75 0.75 1.0" />
-
-                                        <body name="right_picker_wide3_link" pos="0.018118 0.01574 0">
-                                            <inertial pos="0.016206 0.0094593 4.7668e-05" quat="0.574355 3.4175e-06 6.47256e-06 0.818606" mass="0.035835" diaginertia="1.16461e-05 8.09447e-06 4.6309e-06"/>
-                                            <joint name="right_hand_wide3_joint" pos="0 0 0" axis="0 0 -1" range="-0.5 0.5" limited="true" armature="0.001" damping="1.0" frictionloss="0.1" />
-                                            <geom type="mesh" mesh="picker_wide3_link" rgba="0.75 0.75 0.75 1.0" />
-                                        </body>
+                                    <body name="right_gripper_right_link_2" pos="0.0085108 -0.04927 0">
+                                        <inertial pos="0.0255016 -0.00914642 -0.00175616" quat="0.568212 0.571522 0.412623 0.424547" mass="0.0339319" diaginertia="1.36948e-05 1.35553e-05 3.4264e-06"/>
+                                        <joint name="right_gripper_right_joint_2" pos="0 0 0" axis="0 0 -1" range="0 1.52" limited="true" armature="0.01" damping="1.0" frictionloss="0.1" />
+                                        <geom type="mesh" rgba="1 1 1 1" mesh="gripper_right_link_2"/>
                                     </body>
-                                </body>
-
-                                # right wide helper
-                                <body name="right_picker_wide_loop_link" pos="0 0.021633 0.07387" quat="0.0 -0.707 0.0 -0.707">
-                                    <inertial pos="0.016268 0.0040555 0.00030323" quat="0.599119 -2.137e-06 -5.96717e-07 0.80066" mass="0.025142" diaginertia="6.26903e-06 5.85397e-06 6.2389e-07"/>
-                                    <joint name="right_hand_wide_loop_joint" pos="0 0 0" axis="0 0 -1" limited="auto" armature="0.0" damping="0.01" frictionloss="0.01" />
-                                    <geom type="mesh" mesh="picker_wide_loop_link" rgba="0.75 0.75 0.75 1.0" />
                                 </body>
                             </body>
                         </body>

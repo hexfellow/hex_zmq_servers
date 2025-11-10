@@ -1,2 +1,1 @@
-hex_robo_utils>=0.1.13
 pygame>=2.6.1

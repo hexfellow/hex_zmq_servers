@@ -6,14 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
-
 import numpy as np
 from hex_zmq_servers import (
     HexRate,
@@ -21,7 +14,7 @@ from hex_zmq_servers import (
     hex_log,
     HexRobotHexarmClient,
 )
-from hex_robo_utils import DynUtil
+from hex_robo_utils import HexDynUtil as DynUtil
 
 
 def wait_client_working(client, timeout: float = 5.0) -> bool:

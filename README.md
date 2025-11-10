@@ -54,7 +54,7 @@ For those who want to test the examples or contribute to the project, you can in
 ```bash
 git clone https://github.com/hexfellow/hex_zmq_servers.git
 cd hex_zmq_servers
-./venv.sh
+./venv.sh --all
 ```
 
 ## Examples

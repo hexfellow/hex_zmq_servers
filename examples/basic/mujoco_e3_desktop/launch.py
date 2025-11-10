@@ -29,6 +29,12 @@ NODE_CFGS = [
         "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["mujoco_e3_desktop"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["mujoco_e3_desktop"],
+        "cfg": {
+            "params": {
+                "mit_kp": [1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0],
+                "mit_kd": [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0],
+            },
+        },
     },
 ]
 

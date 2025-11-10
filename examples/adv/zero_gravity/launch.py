@@ -11,7 +11,12 @@ import os
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
 
-from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT, HEXARM_URDF_PATH_DICT
+from hex_zmq_servers import (
+    HexLaunch,
+    HEX_ZMQ_SERVERS_PATH_DICT,
+    HEX_ZMQ_CONFIGS_PATH_DICT,
+    HEXARM_URDF_PATH_DICT,
+)
 
 ARM_TYPE = "archer_l6y"
 GRIPPER_TYPE = "gp100_p050_handle"

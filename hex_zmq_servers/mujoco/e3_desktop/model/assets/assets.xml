@@ -6,15 +6,13 @@
     <mesh name="arm_link_3" file="arm_link_3.STL"/>
     <mesh name="arm_link_4" file="arm_link_4.STL"/>
     <mesh name="arm_link_5" file="arm_link_5.STL"/>
-    <mesh name="picker_base_link" file="picker_base_link.STL"/>
-    <mesh name="picker_narrow1_link" file="picker_narrow1_link.STL"/>
-    <mesh name="picker_narrow2_link" file="picker_narrow2_link.STL"/>
-    <mesh name="picker_narrow3_link" file="picker_narrow3_link.STL"/>
-    <mesh name="picker_narrow_loop_link" file="picker_narrow_loop_link.STL"/>
-    <mesh name="picker_wide1_link" file="picker_wide1_link.STL"/>
-    <mesh name="picker_wide2_link" file="picker_wide2_link.STL"/>
-    <mesh name="picker_wide3_link" file="picker_wide3_link.STL"/>
-    <mesh name="picker_wide_loop_link" file="picker_wide_loop_link.STL"/>
+    <mesh name="gripper_base_link" file="gripper_base_link.STL"/>
+    <mesh name="gripper_left_helper_link" file="gripper_left_helper_link.STL"/>
+    <mesh name="gripper_left_link_1" file="gripper_left_link_1.STL"/>
+    <mesh name="gripper_left_link_2" file="gripper_left_link_2.STL"/>
+    <mesh name="gripper_right_helper_link" file="gripper_right_helper_link.STL"/>
+    <mesh name="gripper_right_link_1" file="gripper_right_link_1.STL"/>
+    <mesh name="gripper_right_link_2" file="gripper_right_link_2.STL"/>
     <mesh name="camera_link" file="camera_link.STL"/>
     <mesh name="table_link" file="table_link.STL" scale="0.001 0.001 0.001"/>
 </mujocoinclude>

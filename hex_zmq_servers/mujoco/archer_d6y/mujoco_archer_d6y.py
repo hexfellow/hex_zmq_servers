@@ -21,10 +21,14 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from hex_robo_utils import HexCtrlUtilMitJoint as CtrlUtil
 
 MUJOCO_CONFIG = {
     "states_rate": 250,
     "img_rate": 30,
+    "tau_ctrl": False,
+    "mit_kp": [200.0, 200.0, 200.0, 75.0, 15.0, 15.0, 20.0],
+    "mit_kd": [12.5, 12.5, 12.5, 6.0, 0.31, 0.31, 1.0],
     "headless": False,
     "sens_ts": True,
 }
@@ -41,6 +45,9 @@ class HexMujocoArcherD6y(HexMujocoBase):
         try:
             states_rate = mujoco_config["states_rate"]
             img_rate = mujoco_config["img_rate"]
+            self.__tau_ctrl = mujoco_config["tau_ctrl"]
+            self.__mit_kp = mujoco_config["mit_kp"]
+            self.__mit_kd = mujoco_config["mit_kd"]
             self.__headless = mujoco_config["headless"]
             self.__sens_ts = mujoco_config["sens_ts"]
         except KeyError as ke:
@@ -63,6 +70,10 @@ class HexMujocoArcherD6y(HexMujocoBase):
             [self.__model.jnt_range[self.__state_robot_idx, :]],
             axis=0,
         )
+        if not self.__tau_ctrl:
+            self.__mit_kp = np.ascontiguousarray(np.asarray(self.__mit_kp))
+            self.__mit_kd = np.ascontiguousarray(np.asarray(self.__mit_kd))
+            self.__mit_ctrl = CtrlUtil()
         self.__gripper_ratio = 1.33 / 1.52
         self._limits[0, -1] *= self.__gripper_ratio
         self._dofs = np.array([len(self.__state_robot_idx)])
@@ -85,7 +96,7 @@ class HexMujocoArcherD6y(HexMujocoBase):
         width, height = 640, 400
         fovy_rad = self.__model.cam_fovy[0] * np.pi / 180.0
         focal = 0.5 * height / np.tan(fovy_rad / 2.0)
-        self._intri = np.array([focal, focal, width / 2, height / 2])
+        self._intri = np.array([focal, focal, height / 2, height / 2])
         self.__rgb_cam = mujoco.Renderer(self.__model, height, width)
         self.__depth_cam = mujoco.Renderer(self.__model, height, width)
         self.__depth_cam.enable_depth_rendering()
@@ -200,9 +211,32 @@ class HexMujocoArcherD6y(HexMujocoBase):
         ]).T, self.__data.qpos[self.__state_obj_idx].copy()
 
     def __set_cmds(self, cmds: np.ndarray):
-        self.__data.ctrl[self.__ctrl_robot_idx] = cmds
-        self.__data.ctrl[
-            self.__ctrl_robot_idx[-1]] = cmds[-1] / self.__gripper_ratio
+        tau_cmds = None
+        if not self.__tau_ctrl:
+            if len(cmds.shape) == 1:
+                cmd_pos = cmds.copy()
+                cmd_tor = np.zeros_like(cmds)
+            else:
+                cmd_pos = cmds[:, 0].copy()
+                cmd_tor = cmds[:, 1].copy()
+            cmd_pos = self._apply_pos_limits(
+                cmd_pos,
+                self._limits[0, :, 0],
+                self._limits[0, :, 1],
+            )
+            cmd_pos[-1] /= self.__gripper_ratio
+            tau_cmds = self.__mit_ctrl(
+                self.__mit_kp,
+                self.__mit_kd,
+                cmd_pos,
+                np.zeros(len(self.__state_robot_idx)),
+                self.__data.qpos[self.__state_robot_idx],
+                self.__data.qvel[self.__state_robot_idx],
+                cmd_tor,
+            )
+        else:
+            tau_cmds = cmds.copy()
+        self.__data.ctrl[self.__ctrl_robot_idx] = tau_cmds
 
     def __get_rgb(self):
         self.__rgb_cam.update_scene(self.__data, "end_camera")

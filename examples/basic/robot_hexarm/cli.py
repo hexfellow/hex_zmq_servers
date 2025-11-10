@@ -6,13 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 from hex_zmq_servers import (
     HexRate,
     hex_zmq_ts_now,

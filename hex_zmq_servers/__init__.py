@@ -15,7 +15,6 @@ from .zmq_base import HexZMQDummyClient, HexZMQDummyServer
 
 from .cam import HexCamBase, HexCamClientBase, HexCamServerBase
 from .cam import HexCamDummy, HexCamDummyClient, HexCamDummyServer
-from .cam import HexCamBerxel, HexCamBerxelClient, HexCamBerxelServer
 
 from .mujoco import HexMujocoBase, HexMujocoClientBase, HexMujocoServerBase
 from .mujoco import HexMujocoArcherD6y, HexMujocoArcherD6yClient, HexMujocoArcherD6yServer
@@ -32,7 +31,6 @@ file_dir = os.path.dirname(os.path.abspath(__file__))
 HEX_ZMQ_SERVERS_PATH_DICT = {
     "zmq_dummy": f"{file_dir}/zmq_base.py",
     "cam_dummy": f"{file_dir}/cam/dummy/cam_dummy_srv.py",
-    "cam_berxel": f"{file_dir}/cam/berxel/cam_berxel_srv.py",
     "mujoco_archer_d6y":
     f"{file_dir}/mujoco/archer_d6y/mujoco_archer_d6y_srv.py",
     "mujoco_e3_desktop":
@@ -44,7 +42,6 @@ HEX_ZMQ_SERVERS_PATH_DICT = {
 HEX_ZMQ_CONFIGS_PATH_DICT = {
     "zmq_dummy": f"{file_dir}/config/zmq_dummy.json",
     "cam_dummy": f"{file_dir}/config/cam_dummy.json",
-    "cam_berxel": f"{file_dir}/config/cam_berxel.json",
     "mujoco_archer_d6y": f"{file_dir}/config/mujoco_archer_d6y.json",
     "mujoco_e3_desktop": f"{file_dir}/config/mujoco_e3_desktop.json",
     "robot_dummy": f"{file_dir}/config/robot_dummy.json",
@@ -86,9 +83,6 @@ __all__ = [
     "HexCamDummy",
     "HexCamDummyClient",
     "HexCamDummyServer",
-    "HexCamBerxel",
-    "HexCamBerxelClient",
-    "HexCamBerxelServer",
 
     # mujoco
     "HexMujocoBase",
@@ -115,5 +109,22 @@ __all__ = [
     "HexRobotHexarmClient",
     "HexRobotHexarmServer",
 ]
+
+# Optional: berxel
+try:
+    from .cam import HexCamBerxel, HexCamBerxelClient, HexCamBerxelServer
+    HEX_ZMQ_SERVERS_PATH_DICT[
+        "cam_berxel"] = f"{file_dir}/cam/berxel/cam_berxel_srv.py"
+    HEX_ZMQ_CONFIGS_PATH_DICT[
+        "cam_berxel"] = f"{file_dir}/config/cam_berxel.json"
+    __all__.extend([
+        "HexCamBerxel",
+        "HexCamBerxelClient",
+        "HexCamBerxelServer",
+    ])
+except ImportError:
+    # berxel_py_wrapper not installed
+    # Install with: pip install hex_zmq_servers[berxel]
+    pass
 
 # print("#### Thanks for using hex_zmq_servers :D ####")

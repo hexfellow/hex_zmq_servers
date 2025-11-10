@@ -6,13 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 from hex_zmq_servers import (
     HexRate,
     hex_zmq_ts_now,
@@ -80,8 +74,12 @@ def main():
                 # cv2.imshow("depth_img", depth_img)
                 depth_crop = depth_img[crop[0]:crop[1], crop[2]:crop[3]]
                 depth_values = depth_crop.astype(np.float32)
-                depth_norm = np.clip((depth_values - depth_range[0]) /
-                                    (depth_range[1] - depth_range[0]), 0.0, 1.0)
+                depth_norm = np.clip(
+                    (depth_values - depth_range[0]) /
+                    (depth_range[1] - depth_range[0]),
+                    0.0,
+                    1.0,
+                )
                 depth_u8 = (depth_norm * 255.0).astype(np.uint8)
                 depth_cmap = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
                 if rotate_type is not None:

@@ -6,13 +6,7 @@
 # Date  : 2025-09-25
 ################################################################
 
-import sys, os
 import argparse, json, time
-
-sys.path.append(
-    os.path.dirname(
-        os.path.dirname(
-            os.path.dirname(os.path.dirname(os.path.realpath(__file__))))))
 from hex_zmq_servers import (
     HexRate,
     HEX_LOG_LEVEL,
@@ -99,17 +93,20 @@ def main():
             if depth_hdr is not None:
                 hex_log(
                     HEX_LOG_LEVEL["info"],
-                    f"depth_seq: {depth_hdr['args']}; depth_ts: {depth_hdr['ts']}")
+                    f"depth_seq: {depth_hdr['args']}; depth_ts: {depth_hdr['ts']}"
+                )
                 depth_values = depth_img.astype(np.float32)
-                depth_norm = np.clip((depth_values - 70) / (1000 - 70), 0.0, 1.0)
+                depth_norm = np.clip((depth_values - 70) / (1000 - 70), 0.0,
+                                     1.0)
                 depth_u8 = (depth_norm * 255.0).astype(np.uint8)
                 depth_cmap = cv2.applyColorMap(depth_u8, cv2.COLORMAP_JET)
                 cv2.imshow("depth_cmap", depth_cmap)
 
             rgb_hdr, rgb_img = client.get_rgb()
             if rgb_hdr is not None:
-                hex_log(HEX_LOG_LEVEL["info"],
-                        f"rgb_seq: {rgb_hdr['args']}; rgb_ts: {rgb_hdr['ts']}")
+                hex_log(
+                    HEX_LOG_LEVEL["info"],
+                    f"rgb_seq: {rgb_hdr['args']}; rgb_ts: {rgb_hdr['ts']}")
                 cv2.imshow("rgb_img", rgb_img)
 
             key = cv2.waitKey(1)
