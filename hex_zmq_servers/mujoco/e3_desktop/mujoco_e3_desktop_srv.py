@@ -79,6 +79,7 @@ class HexMujocoE3DesktopServer(HexMujocoServerBase):
                 self._depth_left_value,
                 self._rgb_right_value,
                 self._depth_right_value,
+                self._stop_event,
             ])
         finally:
             self._device.close()

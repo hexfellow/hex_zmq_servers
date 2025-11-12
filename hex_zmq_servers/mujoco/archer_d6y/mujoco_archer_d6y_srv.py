@@ -64,6 +64,7 @@ class HexMujocoArcherD6yServer(HexMujocoServerBase):
                 self._cmds_value,
                 self._rgb_value,
                 self._depth_value,
+                self._stop_event,
             ])
         finally:
             self._device.close()

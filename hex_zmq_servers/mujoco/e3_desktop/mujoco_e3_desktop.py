@@ -8,6 +8,7 @@
 
 import os
 import copy
+import threading
 import cv2
 import numpy as np
 
@@ -21,6 +22,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from hex_robo_utils import HexCtrlUtilMitJoint as CtrlUtil
 
 MUJOCO_CONFIG = {
@@ -138,7 +140,7 @@ class HexMujocoE3Desktop(HexMujocoBase):
             self.__viewer.sync()
         return True
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         states_left_value = hex_values[0]
         states_right_value = hex_values[1]
         states_obj_value = hex_values[2]
@@ -150,6 +152,7 @@ class HexMujocoE3Desktop(HexMujocoBase):
         left_depth_value = hex_values[8]
         right_rgb_value = hex_values[9]
         right_depth_value = hex_values[10]
+        stop_event = hex_values[11]
 
         last_states_ts = {"s": 0, "ns": 0}
         states_left_count = 0
@@ -167,7 +170,7 @@ class HexMujocoE3Desktop(HexMujocoBase):
         rate = HexRate(self.__sim_rate)
         states_trig_count = 0
         img_trig_count = 0
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             states_trig_count += 1
             if states_trig_count >= self.__states_trig_thresh:
                 states_trig_count = 0
@@ -263,6 +266,9 @@ class HexMujocoE3Desktop(HexMujocoBase):
             # sleep
             rate.sleep()
 
+        # close
+        self.close()
+
     def __get_states(self):
         pos = copy.deepcopy(self.__data.qpos)
         vel = copy.deepcopy(self.__data.qvel)
@@ -346,8 +352,11 @@ class HexMujocoE3Desktop(HexMujocoBase):
         }
 
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
         self.__rgb_cam.close()
         self.__depth_cam.close()
         if not self.__headless:
             self.__viewer.close()
+        hex_log(HEX_LOG_LEVEL["info"], "HexMujocoE3Desktop closed")

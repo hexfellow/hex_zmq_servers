@@ -6,8 +6,9 @@
 # Date  : 2025-09-14
 ################################################################
 
-import numpy as np
 import time
+import threading
+import numpy as np
 
 from ..robot_base import HexRobotBase
 from ...zmq_base import (
@@ -16,6 +17,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from hex_device import HexDeviceApi, MotorBase
 from hex_device.motor_base import CommandType
 
@@ -120,15 +122,16 @@ class HexRobotHexarm(HexRobotBase):
         # start work loop
         self._working.set()
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         states_value = hex_values[0]
         cmds_value = hex_values[1]
+        stop_event = hex_values[2]
 
         last_states_ts = hex_zmq_ts_now()
         states_count = 0
         last_cmds_seq = -1
         rate = HexRate(1000)
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             # states
             ts, states = self.__get_states()
             if states is not None:
@@ -149,6 +152,9 @@ class HexRobotHexarm(HexRobotBase):
 
             # sleep
             rate.sleep()
+
+        # close
+        self.close()
 
     def __get_states(self) -> tuple[np.ndarray | None, dict | None]:
         if self.__arm_archer is None:
@@ -225,5 +231,9 @@ class HexRobotHexarm(HexRobotBase):
         return True
 
     def close(self):
+        if not self._working.is_set():
+            return
+        self._working.clear()
         self.__arm_archer.stop()
         self.__hex_api.close()
+        hex_log(HEX_LOG_LEVEL["info"], "HexRobotHexarm closed")

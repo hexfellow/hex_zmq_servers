@@ -63,10 +63,10 @@ def main():
 
     # wait servers to work
     if not wait_client_working(hexarm_master_client):
-        hex_log(HEX_LOG_LEVEL["error"], "hexarm master server is not working")
+        hex_log(HEX_LOG_LEVEL["err"], "hexarm master server is not working")
         return
     if not wait_client_working(hexarm_slave_client):
-        hex_log(HEX_LOG_LEVEL["error"], "hexarm slave server is not working")
+        hex_log(HEX_LOG_LEVEL["err"], "hexarm slave server is not working")
         return
 
     # work loop

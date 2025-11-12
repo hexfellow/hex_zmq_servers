@@ -8,6 +8,7 @@
 
 import os
 import copy
+import threading
 import cv2
 import numpy as np
 
@@ -21,6 +22,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from hex_robo_utils import HexCtrlUtilMitJoint as CtrlUtil
 
 MUJOCO_CONFIG = {
@@ -122,12 +124,13 @@ class HexMujocoArcherD6y(HexMujocoBase):
             self.__viewer.sync()
         return True
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         states_robot_value = hex_values[0]
         states_obj_value = hex_values[1]
         cmds_robot_value = hex_values[2]
         rgb_value = hex_values[3]
         depth_value = hex_values[4]
+        stop_event = hex_values[5]
 
         last_states_ts = {"s": 0, "ns": 0}
         states_robot_count = 0
@@ -140,7 +143,7 @@ class HexMujocoArcherD6y(HexMujocoBase):
         states_trig_count = 0
         img_trig_count = 0
 
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             states_trig_count += 1
             if states_trig_count >= self.__states_trig_thresh:
                 states_trig_count = 0
@@ -196,6 +199,9 @@ class HexMujocoArcherD6y(HexMujocoBase):
 
             # sleep
             rate.sleep()
+
+        # close
+        self.close()
 
     def __get_states(self):
         pos = copy.deepcopy(self.__data.qpos)
@@ -259,8 +265,11 @@ class HexMujocoArcherD6y(HexMujocoBase):
         }
 
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
         self.__rgb_cam.close()
         self.__depth_cam.close()
         if not self.__headless:
             self.__viewer.close()
+        hex_log(HEX_LOG_LEVEL["info"], "HexMujocoArcherD6y closed")

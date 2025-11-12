@@ -6,6 +6,7 @@
 # Date  : 2025-09-16
 ################################################################
 
+import threading
 import numpy as np
 from abc import abstractmethod
 
@@ -87,7 +88,7 @@ class HexMujocoBase(HexDeviceBase):
         return normed_rads
 
     @abstractmethod
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         raise NotImplementedError(
             "`work_loop` should be implemented by the child class")
 
@@ -266,6 +267,7 @@ class HexMujocoServerBase(HexZMQServerBase):
                 self._cmds_value,
                 self._rgb_value,
                 self._depth_value,
+                self._stop_event,
             ])
         finally:
             self._device.close()

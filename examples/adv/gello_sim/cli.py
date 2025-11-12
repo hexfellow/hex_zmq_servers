@@ -50,10 +50,10 @@ def main():
 
     # wait servers to work
     if not wait_client_working(gello_client):
-        hex_log(HEX_LOG_LEVEL["error"], "gello server is not working")
+        hex_log(HEX_LOG_LEVEL["err"], "gello server is not working")
         return
     if not wait_client_working(mujoco_client):
-        hex_log(HEX_LOG_LEVEL["error"], "mujoco server is not working")
+        hex_log(HEX_LOG_LEVEL["err"], "mujoco server is not working")
         return
 
     # work loop
