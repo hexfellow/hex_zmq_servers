@@ -40,6 +40,7 @@ def main():
                 f"waiting for mujoco to work: {i * 0.5}s")
         working = client.is_working()
         if working is not None and working["cmd"] == "is_working_ok":
+            client.seq_clear()
             break
         else:
             time.sleep(0.5)

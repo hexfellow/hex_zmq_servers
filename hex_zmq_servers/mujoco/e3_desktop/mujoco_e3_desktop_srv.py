@@ -31,7 +31,7 @@ NET_CONFIG = {
 }
 
 MUJOCO_CONFIG = {
-    "states_rate": 250,
+    "states_rate": 500,
     "img_rate": 30,
     "headless": False,
     "sens_ts": True,
@@ -79,6 +79,7 @@ class HexMujocoE3DesktopServer(HexMujocoServerBase):
                 self._depth_left_value,
                 self._rgb_right_value,
                 self._depth_right_value,
+                self._stop_event,
             ])
         finally:
             self._device.close()
@@ -119,6 +120,11 @@ class HexMujocoE3DesktopServer(HexMujocoServerBase):
 
     def _set_cmds(self, recv_hdr: dict, recv_buf: np.ndarray):
         seq = recv_hdr.get("args", None)
+        if self._seq_clear_flag:
+            self._seq_clear_flag = False
+            self._cmds_left_seq = -1
+            self._cmds_right_seq = -1
+            return self.no_ts_hdr(recv_hdr, False), None
 
         # get robot name
         robot_name = recv_hdr["cmd"].split("_")[2]
@@ -184,6 +190,8 @@ class HexMujocoE3DesktopServer(HexMujocoServerBase):
     def _process_request(self, recv_hdr: dict, recv_buf: np.ndarray):
         if recv_hdr["cmd"] == "is_working":
             return self.no_ts_hdr(recv_hdr, self._device.is_working()), None
+        elif recv_hdr["cmd"] == "seq_clear":
+            return self.no_ts_hdr(recv_hdr, self._seq_clear()), None
         elif recv_hdr["cmd"] == "reset":
             return self.no_ts_hdr(recv_hdr, self._device.reset()), None
         elif recv_hdr["cmd"] == "get_dofs":

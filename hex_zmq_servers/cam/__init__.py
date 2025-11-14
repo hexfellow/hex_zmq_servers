@@ -8,6 +8,7 @@
 
 from .cam_base import HexCamBase, HexCamClientBase, HexCamServerBase
 from .dummy import HexCamDummy, HexCamDummyClient, HexCamDummyServer
+from .berxel import HexCamBerxel, HexCamBerxelClient, HexCamBerxelServer
 
 __all__ = [
     # base
@@ -19,17 +20,9 @@ __all__ = [
     "HexCamDummy",
     "HexCamDummyClient",
     "HexCamDummyServer",
-]
 
-# Optional: berxel (requires berxel_py_wrapper)
-try:
-    from .berxel import HexCamBerxel, HexCamBerxelClient, HexCamBerxelServer
-    __all__.extend([
-        "HexCamBerxel",
-        "HexCamBerxelClient",
-        "HexCamBerxelServer",
-    ])
-except ImportError:
-    # berxel_py_wrapper not installed
-    # Install with: pip install hex_zmq_servers[berxel]
-    pass
+    # berxel
+    "HexCamBerxel",
+    "HexCamBerxelClient",
+    "HexCamBerxelServer",
+]

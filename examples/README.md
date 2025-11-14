@@ -73,3 +73,6 @@ examples/
 - **zero_gravity**
   - Description: Zero gravity test example, showing how to use torque compensation to compensate the gravity of HexArm robot.
   - [Details](adv/zero_gravity/README.md)
+- **multi_berxel**
+  - Description: Multi Berxel example, showing how to use multiple Berxel RGB-D camera devices.
+  - [Details](adv/multi_berxel/README.md)

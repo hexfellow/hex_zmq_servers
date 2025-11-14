@@ -1,7 +1,7 @@
 <mujoco model="e3_desktop scene">
     <compiler angle="radian"/>
     <option integrator="implicitfast"/>
-    <option timestep="4e-3"/>
+    <option timestep="2e-3"/>
 
     <statistic center="0.3 0 0.45" extent="0.8" meansize="0.05"/>
 

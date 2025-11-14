@@ -6,7 +6,7 @@
 # Date  : 2025-09-12
 ################################################################
 
-import os
+import os, signal
 import time
 import zmq
 import threading
@@ -373,8 +373,26 @@ def hex_server_helper(cfg: dict, server_cls: type):
         raise ValueError(f"cfg is not valid, missing key: {missing_key}")
 
     server = server_cls(net, params)
-    server.start()
-    server.work_loop()
+
+    shutdown_flag = False
+
+    def signal_handler(signum, frame):
+        nonlocal shutdown_flag
+        if not shutdown_flag:
+            shutdown_flag = True
+            print(
+                f"[server] Received signal {signal.Signals(signum).name}, shutting down..."
+            )
+            server._stop_event.set()
+
+    signal.signal(signal.SIGTERM, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
+
+    try:
+        server.start()
+        server.work_loop()
+    finally:
+        server.close()
 
 
 ################################################################
@@ -407,7 +425,7 @@ class HexZMQDummyServer(HexZMQServerBase):
 
     def work_loop(self):
         try:
-            while True:
+            while not self._stop_event.is_set():
                 time.sleep(1)
         finally:
             self.close()

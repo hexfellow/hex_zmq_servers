@@ -6,6 +6,7 @@
 # Date  : 2025-09-16
 ################################################################
 
+import threading
 import numpy as np
 from abc import abstractmethod
 
@@ -34,6 +35,7 @@ class HexRobotBase(HexDeviceBase):
         HexDeviceBase.__init__(self)
         self._dofs = None
         self._limits = None
+        self._seq_clear_flag = False
 
     def __del__(self):
         HexDeviceBase.__del__(self)
@@ -80,7 +82,7 @@ class HexRobotBase(HexDeviceBase):
         return normed_rads
 
     @abstractmethod
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         raise NotImplementedError(
             "`work_loop` should be implemented by the child class")
 
@@ -99,6 +101,10 @@ class HexRobotClientBase(HexZMQClientBase):
 
     def __del__(self):
         HexZMQClientBase.__del__(self)
+
+    def seq_clear(self):
+        clear_hdr, _ = self.request({"cmd": "seq_clear"})
+        return clear_hdr
 
     def get_dofs(self):
         _, dofs = self.request({"cmd": "get_dofs"})
@@ -161,6 +167,7 @@ class HexRobotServerBase(HexZMQServerBase):
         self._states_value = HexSafeValue()
         self._cmds_value = HexSafeValue()
         self._cmds_seq = -1
+        self._seq_clear_flag = False
 
     def __del__(self):
         HexZMQServerBase.__del__(self)
@@ -168,9 +175,17 @@ class HexRobotServerBase(HexZMQServerBase):
 
     def work_loop(self):
         try:
-            self._device.work_loop([self._states_value, self._cmds_value])
+            self._device.work_loop([
+                self._states_value,
+                self._cmds_value,
+                self._stop_event,
+            ])
         finally:
             self._device.close()
+
+    def _seq_clear(self):
+        self._seq_clear_flag = True
+        return True
 
     def _get_states(self, recv_hdr: dict):
         try:
@@ -197,6 +212,11 @@ class HexRobotServerBase(HexZMQServerBase):
 
     def _set_cmds(self, recv_hdr: dict, recv_buf: np.ndarray):
         seq = recv_hdr.get("args", None)
+        if self._seq_clear_flag:
+            self._seq_clear_flag = False
+            self._cmds_seq = -1
+            return self.no_ts_hdr(recv_hdr, False), None
+
         if seq is not None:
             delta = (seq - self._cmds_seq) % self._max_seq_num
             if delta >= 0 and delta < 1e6:

@@ -9,7 +9,7 @@
     "params": {
         "device_ip": "172.18.8.161",
         "device_port": 8439,
-        "control_hz": 250,
+        "control_hz": 500,
         "arm_type": 16,
         "use_gripper": true,
         "mit_kp": [

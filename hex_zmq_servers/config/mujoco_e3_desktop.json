@@ -7,7 +7,7 @@
         "server_num_workers": 4
     },
     "params": {
-        "states_rate": 250,
+        "states_rate": 500,
         "img_rate": 30,
         "tau_ctrl": false,
         "mit_kp": [

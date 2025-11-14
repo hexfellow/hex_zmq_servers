@@ -32,7 +32,7 @@ class HexDeviceBase(ABC):
             self._working.wait(0.1)
 
     @abstractmethod
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         raise NotImplementedError(
             "`work_loop` should be implemented by the child class")
 

@@ -7,10 +7,15 @@
 ################################################################
 
 import cv2
+import threading
 import numpy as np
 
 from ..cam_base import HexCamBase
-from ...zmq_base import HexSafeValue
+from ...zmq_base import (
+    hex_zmq_ts_now,
+    HexSafeValue,
+)
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from berxel_py_wrapper import *
 
 CAMERA_CONFIG = {
@@ -69,13 +74,14 @@ class HexCamBerxel(HexCamBase):
         self._wait_for_working()
         return self.__serial_number
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         rgb_value = hex_values[0]
         depth_value = hex_values[1]
+        stop_event = hex_values[2]
 
         rgb_count = 0
         depth_count = 0
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             # read frame
             hawk_rgb_frame = self.__device.readColorFrame(40)
             hawk_depth_frame = self.__device.readDepthFrame(40)
@@ -94,6 +100,9 @@ class HexCamBerxel(HexCamBase):
 
             self.__device.releaseFrame(hawk_rgb_frame)
             self.__device.releaseFrame(hawk_depth_frame)
+
+        # close
+        self.close()
 
     def __unpack_frame(self, hawk_frame: BerxelHawkFrame, depth: bool = False):
         # common variables
@@ -132,7 +141,7 @@ class HexCamBerxel(HexCamBase):
             )
             frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
 
-        return ts, frame
+        return ts if self.__sens_ts else hex_zmq_ts_now(), frame
 
     def __open_device(self, serial_number: str | None = None) -> bool:
         # init context
@@ -220,9 +229,12 @@ class HexCamBerxel(HexCamBase):
             return False
 
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
         self.__stop_stream()
         self.__close_device()
+        hex_log(HEX_LOG_LEVEL["info"], "HexCamBerxel closed")
 
     def __stop_stream(self):
         if self.__device is None:

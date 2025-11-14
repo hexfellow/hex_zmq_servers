@@ -6,6 +6,7 @@
 # Date  : 2025-09-12
 ################################################################
 
+import threading
 import numpy as np
 
 from ..cam_base import HexCamBase
@@ -14,6 +15,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 
 
 class HexCamDummy(HexCamBase):
@@ -25,14 +27,15 @@ class HexCamDummy(HexCamBase):
     def __del__(self):
         HexCamBase.__del__(self)
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         rgb_value = hex_values[0]
         depth_value = hex_values[1]
+        stop_event = hex_values[2]
 
         rgb_count = 0
         depth_count = 0
         rate = HexRate(60)
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             # rgb
             rgb_img = np.random.randint(
                 0,
@@ -56,5 +59,11 @@ class HexCamDummy(HexCamBase):
             # sleep
             rate.sleep()
 
+        # close
+        self.close()
+
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
+        hex_log(HEX_LOG_LEVEL["info"], "HexCamDummy closed")

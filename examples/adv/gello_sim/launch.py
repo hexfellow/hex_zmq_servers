@@ -89,7 +89,7 @@ NODE_CFGS = [
                 "port": MUJOCO_SRV_PORT,
             },
             "params": {
-                "states_rate": 250,
+                "states_rate": 500,
                 "img_rate": 30,
                 "tau_ctrl": False,
                 "mit_kp": [200.0, 200.0, 200.0, 75.0, 15.0, 15.0, 20.0],
