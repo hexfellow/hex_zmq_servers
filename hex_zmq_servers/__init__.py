@@ -13,10 +13,6 @@ from .zmq_base import HexRate, hex_zmq_ts_now, hex_zmq_ts_delta_ms
 from .zmq_base import HexSafeValue, HexZMQClientBase, HexZMQServerBase, hex_server_helper
 from .zmq_base import HexZMQDummyClient, HexZMQDummyServer
 
-from .mujoco import HexMujocoBase, HexMujocoClientBase, HexMujocoServerBase
-from .mujoco import HexMujocoArcherD6y, HexMujocoArcherD6yClient, HexMujocoArcherD6yServer
-from .mujoco import HexMujocoE3Desktop, HexMujocoE3DesktopClient, HexMujocoE3DesktopServer
-
 from .robot import HexRobotBase, HexRobotClientBase, HexRobotServerBase
 from .robot import HexRobotDummy, HexRobotDummyClient, HexRobotDummyServer
 from .robot import HexRobotGello, HexRobotGelloClient, HexRobotGelloServer
@@ -111,7 +107,7 @@ try:
     ])
 except ImportError:
     # berxel_py_wrapper not installed
-    # Install with: pip install hex_zmq_servers[berxel]
+    # Install with: pip install hex_zmq_servers[berxel] or pip install hex_zmq_servers[all]
     pass
 
 # Optional: mujoco
@@ -145,7 +141,7 @@ try:
     ])
 except ImportError:
     # mujoco not installed
-    # Install with: pip install hex_zmq_servers[mujoco]
+    # Install with: pip install hex_zmq_servers[mujoco] or pip install hex_zmq_servers[all]
     pass
 
 # print("#### Thanks for using hex_zmq_servers :D ####")

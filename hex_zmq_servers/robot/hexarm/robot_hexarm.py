@@ -93,7 +93,7 @@ class HexRobotHexarm(HexRobotBase):
         self.__gripper_dofs = 0
         self.__gripper = None
         if use_gripper:
-            self.__gripper = self.__hex_api.find_optional_device('hand_status')
+            self.__gripper = self.__hex_api.find_optional_device_by_id(1)
             if self.__gripper is not None:
                 self.__gripper_dofs = len(self.__gripper)
                 self._limits += [self.__gripper.get_joint_limits()]
