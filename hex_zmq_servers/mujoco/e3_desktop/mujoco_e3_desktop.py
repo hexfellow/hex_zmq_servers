@@ -305,8 +305,8 @@ class HexMujocoE3Desktop(HexMujocoBase):
         tau_cmds = None
         if not self.__tau_ctrl:
             cmd_pos = None
-            tar_vel = np.zeros_like(cmds)
-            cmd_tor = np.zeros_like(cmds)
+            tar_vel = np.zeros(cmds.shape[0])
+            cmd_tor = np.zeros(cmds.shape[0])
             cmd_kp = self.__mit_kp.copy()
             cmd_kd = self.__mit_kd.copy()
             if len(cmds.shape) == 1:

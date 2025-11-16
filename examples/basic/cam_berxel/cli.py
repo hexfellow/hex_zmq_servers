@@ -59,7 +59,7 @@ def main():
     hex_log(HEX_LOG_LEVEL["info"], f"intri: {intri}")
 
     # get rgb and depth
-    rate = HexRate(100)
+    rate = HexRate(200)
     try:
         while True:
             depth_hdr, depth_img = client.get_depth()

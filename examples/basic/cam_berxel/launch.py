@@ -7,11 +7,8 @@
 ################################################################
 
 import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
-
-from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
+from hex_zmq_servers import HexLaunch, HexNodeConfig
+from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 
 # device config
 # # cam 0
@@ -24,32 +21,76 @@ from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIG
 SERIAL_NUMBER = "P100RYB4C03M2B322"
 EXPOSURE = 10000
 
-NODE_CFGS = [
-    {
+# node params
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
+NODE_PARAMS_DICT = {
+    # cli
+    "cam_berxel_cli": {
         "name": "cam_berxel_cli",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
-        "node_path":
-        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/cam_berxel/cli.py",
-        "cfg_path":
-        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/cam_berxel/cli.json",
-    },
-    {
-        "name": "cam_berxel_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
-        "node_path": HEX_ZMQ_SERVERS_PATH_DICT["cam_berxel"],
-        "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["cam_berxel"],
-        "cfg": {
-            "params": {
-                "serial_number": SERIAL_NUMBER,
-                "exposure": EXPOSURE,
-            },
+        "net": {
+            "ip": "127.0.0.1",
+            "port": 12345,
         },
     },
-]
+    # srv
+    "cam_berxel_srv": {
+        "name": "cam_berxel_srv",
+        "net": {
+            "ip": "127.0.0.1",
+            "port": 12345,
+        },
+        "params": {
+            "serial_number": SERIAL_NUMBER,
+            "exposure": EXPOSURE,
+        },
+    },
+}
+
+
+def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
+    node_srv = node_params_dict.get(
+        'cam_berxel_srv',
+        NODE_PARAMS_DICT['cam_berxel_srv'],
+    )
+    node_cli = node_params_dict.get(
+        'cam_berxel_cli',
+        NODE_PARAMS_DICT['cam_berxel_cli'],
+    )
+    return HexNodeConfig([
+        {
+            "name":
+            node_cli['name'] if 'name' in node_cli else "cam_berxel_cli",
+            "node_path":
+            f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/cam_berxel/cli.py",
+            "cfg_path":
+            f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/cam_berxel/cli.json",
+            "cfg": {
+                **({
+                    'net': node_cli['net']
+                } if 'net' in node_cli else {}),
+            },
+        },
+        {
+            "name":
+            node_srv['name'] if 'name' in node_srv else "cam_berxel_srv",
+            "node_path": HEX_ZMQ_SERVERS_PATH_DICT["cam_berxel"],
+            "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["cam_berxel"],
+            "cfg": {
+                **({
+                    'net': node_srv['net']
+                } if 'net' in node_srv else {}),
+                **({
+                    'params': node_srv['params']
+                } if 'params' in node_srv else {}),
+            },
+        },
+    ])
 
 
 def main():
-    launch = HexLaunch(NODE_CFGS)
+    node_cfgs = get_node_cfgs()
+    launch = HexLaunch(node_cfgs)
     launch.run()
 
 

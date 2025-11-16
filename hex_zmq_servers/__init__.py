@@ -6,7 +6,7 @@
 # Date  : 2025-09-15
 ################################################################
 
-from .hex_launch import HexLaunch, HEX_LOG_LEVEL, hex_log, hex_err
+from .hex_launch import HexLaunch, HexNodeConfig, HEX_LOG_LEVEL, hex_log, hex_err
 
 from .device_base import HexDeviceBase
 from .zmq_base import HexRate, hex_zmq_ts_now, hex_zmq_ts_delta_ms
@@ -45,6 +45,7 @@ __all__ = [
 
     # launch
     "HexLaunch",
+    "HexNodeConfig",
     "HEX_LOG_LEVEL",
     "hex_log",
     "hex_err",
