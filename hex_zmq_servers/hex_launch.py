@@ -31,20 +31,22 @@ def hex_err(message):
     print(message, file=sys.stderr)
 
 
-def dict_update(dict_raw: dict, dict_new: dict):
+def dict_update(dict_raw: dict, dict_new: dict, add_new: bool = False):
     for key, value in dict_new.items():
         if key in dict_raw:
             if isinstance(dict_raw[key], dict) and isinstance(value, dict):
                 dict_update(dict_raw[key], value)
             else:
                 dict_raw[key] = value
+        elif add_new:
+            dict_raw[key] = value
 
 
 class HexNodeConfig():
 
     def __init__(
         self,
-        init_params: dict[str, dict] | list[dict] | HexNodeConfig,
+        init_params: dict[str, dict] | list[dict] | HexNodeConfig = {},
     ):
         len_init_params = len(init_params)
         if isinstance(init_params, list):
@@ -84,12 +86,16 @@ class HexNodeConfig():
         else:
             raise ValueError(f"Invalid node_cfgs: {node_cfgs}")
 
-        dict_update(self._cfgs_dict, new_cfgs)
+        print(f"new_cfgs: {new_cfgs}")
+        print(f"self._cfgs_dict: {self._cfgs_dict}")
+        dict_update(self._cfgs_dict, new_cfgs, add_new=True)
+        print(f"self._cfgs_dict: {self._cfgs_dict}")
 
-    def summary(self) -> str:
-        print(f"[HexNodeConfig] Total {len(self._cfgs_dict)} nodes:")
+    def __str__(self) -> str:
+        print_str = f"[HexNodeConfig] Total {len(self._cfgs_dict)} nodes:\n"
         for name in self._cfgs_dict.keys():
-            print(f"  - {name}")
+            print_str += f"  - {name}\n"
+        return print_str
 
     @staticmethod
     def get_node_cfgs(

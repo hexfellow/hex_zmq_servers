@@ -76,3 +76,6 @@ examples/
 - **multi_berxel**
   - Description: Multi Berxel example, showing how to use multiple Berxel RGB-D camera devices.
   - [Details](adv/multi_berxel/README.md)
+- **multi_launch**
+  - Description: Multi launch example, showing how to use multiple launch files.
+  - [Details](adv/multi_launch/README.md)
