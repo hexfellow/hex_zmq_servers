@@ -42,6 +42,17 @@ def dict_update(dict_raw: dict, dict_new: dict, add_new: bool = False):
             dict_raw[key] = value
 
 
+def hex_dict_str(dict_raw: dict, indent: int = 0) -> str:
+    print_str = ("\n" + "*" * 50 + "\n") if indent == 0 else ""
+    for key, value in dict_raw.items():
+        if isinstance(value, dict):
+            print_str += f"{' ' * indent * 4}{key}:\n{hex_dict_str(value, indent + 1)}"
+        else:
+            print_str += f"{' ' * indent * 4}{key}: {value}\n"
+    print_str += ("*" * 50) if indent == 0 else ""
+    return print_str
+
+
 class HexNodeConfig():
 
     def __init__(
@@ -86,10 +97,7 @@ class HexNodeConfig():
         else:
             raise ValueError(f"Invalid node_cfgs: {node_cfgs}")
 
-        print(f"new_cfgs: {new_cfgs}")
-        print(f"self._cfgs_dict: {self._cfgs_dict}")
         dict_update(self._cfgs_dict, new_cfgs, add_new=True)
-        print(f"self._cfgs_dict: {self._cfgs_dict}")
 
     def __str__(self) -> str:
         print_str = f"[HexNodeConfig] Total {len(self._cfgs_dict)} nodes:\n"
@@ -98,9 +106,59 @@ class HexNodeConfig():
         return print_str
 
     @staticmethod
-    def get_node_cfgs(
+    def parse_node_params_dict(
+        node_params_dict: dict,
+        node_default_params_dict: dict,
+    ) -> HexNodeConfig:
+        node_dict = {}
+        for cur_name, cur_default_params in node_default_params_dict.items():
+            if cur_name in node_params_dict.keys():
+                dict_update(cur_default_params, node_params_dict[cur_name])
+            node_dict[cur_name] = cur_default_params
+        return HexNodeConfig(node_dict)
+
+    @staticmethod
+    def get_launch_params_cfgs(
+        launch_params_dict: dict,
+        launch_default_params_dict: dict,
+        launch_path_dict: dict,
+    ) -> HexNodeConfig:
+        cfg_list = []
+        for launch_name, launch_path in launch_path_dict.items():
+            node_default_params_dict = launch_default_params_dict.get(
+                launch_name, {})
+
+            node_params_dict = {}
+            if launch_name in launch_params_dict.keys():
+                node_params_dict = launch_params_dict[launch_name]
+            else:
+                for node_name in node_default_params_dict.keys():
+                    if node_name in launch_params_dict.keys():
+                        node_params_dict[node_name] = launch_params_dict[
+                            node_name]
+
+            launch_update_cfg = HexNodeConfig.parse_node_params_dict(
+                node_params_dict,
+                node_default_params_dict,
+            )
+
+            cfg_list.append(
+                HexNodeConfig.get_node_cfgs_from_launch(
+                    launch_path,
+                    launch_update_cfg,
+                ))
+
+        final_cfg = HexNodeConfig()
+        for cfg in cfg_list:
+            # use name as key to make sure every node has a unique name
+            final_cfg.add_cfgs(cfg.get_cfgs(use_list=True))
+        print(f"final_cfg: {final_cfg}")
+        return final_cfg
+
+    @staticmethod
+    def get_node_cfgs_from_launch(
         launch_path: str,
-        node_params_dict: dict = {},
+        params: dict | HexNodeConfig = {},
     ) -> HexNodeConfig:
         # normalize the path
         launch_path = os.path.abspath(launch_path)
@@ -125,8 +183,15 @@ class HexNodeConfig():
 
         # call `get_node_cfgs` function
         get_node_cfgs_func = getattr(launch_module, "get_node_cfgs")
-        node_cfgs_list = get_node_cfgs_func(node_params_dict)
-        return HexNodeConfig(node_cfgs_list)
+        if isinstance(params, dict):
+            print("params is dict")
+            node_cfgs = get_node_cfgs_func(params)
+        elif isinstance(params, HexNodeConfig):
+            print("params is HexNodeConfig")
+            node_cfgs = get_node_cfgs_func(params.get_cfgs(use_list=False))
+        else:
+            raise ValueError(f"Invalid params: {params}")
+        return node_cfgs
 
 
 class HexLaunch:

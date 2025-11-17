@@ -7,16 +7,9 @@
 ################################################################
 
 import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
-
-from hex_zmq_servers import (
-    HexLaunch,
-    HEX_ZMQ_SERVERS_PATH_DICT,
-    HEX_ZMQ_CONFIGS_PATH_DICT,
-    HEXARM_URDF_PATH_DICT,
-)
+from hex_zmq_servers import HexLaunch, HexNodeConfig
+from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
+from hex_zmq_servers import HEXARM_URDF_PATH_DICT
 
 # robot model config
 ARM_TYPE = "archer_d6y"
@@ -25,10 +18,12 @@ GRIPPER_TYPE = "gp100_p050"
 # server ports
 MUJOCO_SRV_PORT = 12345
 
-NODE_CFGS = [
-    {
+# node params
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
+NODE_PARAMS_DICT = {
+    "joy_sim_cli": {
         "name": "joy_sim_cli",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/joy_sim/cli.py",
         "cfg_path": f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/joy_sim/cli.json",
         "cfg": {
@@ -39,9 +34,8 @@ NODE_CFGS = [
             },
         },
     },
-    {
+    "mujoco_archer_d6y_srv": {
         "name": "mujoco_archer_d6y_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["mujoco_archer_d6y"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["mujoco_archer_d6y"],
         "cfg": {
@@ -52,20 +46,27 @@ NODE_CFGS = [
                 "states_rate": 500,
                 "img_rate": 30,
                 "tau_ctrl": False,
-                # "mit_kp": [200.0, 200.0, 200.0, 75.0, 15.0, 15.0, 20.0],
-                # "mit_kd": [12.5, 12.5, 12.5, 6.0, 0.31, 0.31, 1.0],
-                "mit_kp": [500.0, 500.0, 500.0, 500.0, 500.0, 500.0, 500.0],
-                "mit_kd": [5.0, 5.0, 5.0, 5.0, 5.0, 5.0, 5.0],
+                "mit_kp":
+                [1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0],
+                "mit_kd": [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0],
                 "headless": False,
                 "sens_ts": True,
             },
         },
     },
-]
+}
+
+
+def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
+    )
 
 
 def main():
-    launch = HexLaunch(NODE_CFGS)
+    node_cfgs = get_node_cfgs()
+    launch = HexLaunch(node_cfgs)
     launch.run()
 
 

@@ -7,16 +7,9 @@
 ################################################################
 
 import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
-
-from hex_zmq_servers import (
-    HexLaunch,
-    HEX_ZMQ_SERVERS_PATH_DICT,
-    HEX_ZMQ_CONFIGS_PATH_DICT,
-    HEXARM_URDF_PATH_DICT,
-)
+from hex_zmq_servers import HexLaunch, HexNodeConfig
+from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
+from hex_zmq_servers import HEXARM_URDF_PATH_DICT
 
 # robot model config
 ARM_TYPE = "archer_d6y"
@@ -35,11 +28,12 @@ DEVICE_IP = "192.168.1.111"
 MASTER_DEVICE_PORT = 8439
 SLAVE_DEVICE_PORT = 9439
 
-# node configs
-NODE_CFGS = [
-    {
+# node params
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
+NODE_PARAMS_DICT = {
+    "force_feedback_cli": {
         "name": "force_feedback_cli",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path":
         f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/force_feedback/cli.py",
         "cfg_path":
@@ -56,9 +50,8 @@ NODE_CFGS = [
             },
         },
     },
-    {
+    "robot_hexarm_master_srv": {
         "name": "robot_hexarm_master_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_hexarm"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_hexarm"],
         "cfg": {
@@ -77,9 +70,8 @@ NODE_CFGS = [
             }
         }
     },
-    {
+    "robot_hexarm_slave_srv": {
         "name": "robot_hexarm_slave_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_hexarm"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_hexarm"],
         "cfg": {
@@ -98,11 +90,19 @@ NODE_CFGS = [
             }
         }
     },
-]
+}
+
+
+def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
+    )
 
 
 def main():
-    launch = HexLaunch(NODE_CFGS)
+    node_cfgs = get_node_cfgs()
+    launch = HexLaunch(node_cfgs)
     launch.run()
 
 

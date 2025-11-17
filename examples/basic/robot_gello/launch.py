@@ -20,81 +20,58 @@ NODE_PARAMS_DICT = {
     # cli
     "robot_gello_cli": {
         "name": "robot_gello_cli",
-        "net": {
-            "ip": "127.0.0.1",
-            "port": 12345,
+        "node_path":
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_gello/cli.py",
+        "cfg_path":
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_gello/cli.json",
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
         },
     },
     # srv
     "robot_gello_srv": {
         "name": "robot_gello_srv",
-        "net": {
-            "ip": "127.0.0.1",
-            "port": 12345,
-        },
-        "params": {
-            "idxs": [0, 1, 2, 3, 4, 5, 6],
-            "invs": [1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -3.5],
-            "limits": [
-                [-2.7, 2.7],
-                [-1.57, 2.09],
-                [0, 3.14],
-                [-1.57, 1.57],
-                [-1.57, 1.57],
-                [-1.57, 1.57],
-                [0.0, 1.33],
-            ],
-            "device":
-            GELLO_DEVICE,
-            "baudrate":
-            115200,
-            "max_retries":
-            3,
-            "sens_ts":
-            True,
+        "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_gello"],
+        "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_gello"],
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
+            "params": {
+                "idxs": [0, 1, 2, 3, 4, 5, 6],
+                "invs": [1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -3.5],
+                "limits": [
+                    [-2.7, 2.7],
+                    [-1.57, 2.09],
+                    [0, 3.14],
+                    [-1.57, 1.57],
+                    [-1.57, 1.57],
+                    [-1.57, 1.57],
+                    [0.0, 1.33],
+                ],
+                "device":
+                GELLO_DEVICE,
+                "baudrate":
+                115200,
+                "max_retries":
+                3,
+                "sens_ts":
+                True,
+            },
         },
     },
 }
 
 
 def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
-    node_srv = node_params_dict.get(
-        'robot_gello_srv',
-        NODE_PARAMS_DICT['robot_gello_srv'],
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
     )
-    node_cli = node_params_dict.get(
-        'robot_gello_cli',
-        NODE_PARAMS_DICT['robot_gello_cli'],
-    )
-    return HexNodeConfig([
-        {
-            "name":
-            node_cli['name'] if 'name' in node_cli else "robot_gello_cli",
-            "node_path":
-            f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_gello/cli.py",
-            "cfg_path":
-            f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_gello/cli.json",
-            "cfg": {
-                **({
-                    'net': node_cli['net']
-                } if 'net' in node_cli else {}),
-            },
-        },
-        {
-            "name":
-            node_srv['name'] if 'name' in node_srv else "robot_gello_srv",
-            "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_gello"],
-            "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_gello"],
-            "cfg": {
-                **({
-                    'net': node_srv['net']
-                } if 'net' in node_srv else {}),
-                **({
-                    'params': node_srv['params']
-                } if 'params' in node_srv else {}),
-            },
-        },
-    ])
 
 
 def main():

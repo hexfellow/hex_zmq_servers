@@ -29,68 +29,45 @@ NODE_PARAMS_DICT = {
     # cli
     "robot_hexarm_cli": {
         "name": "robot_hexarm_cli",
-        "net": {
-            "ip": "127.0.0.1",
-            "port": 12345,
+        "node_path":
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_hexarm/cli.py",
+        "cfg_path":
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_hexarm/cli.json",
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
         },
     },
     # srv
     "robot_hexarm_srv": {
         "name": "robot_hexarm_srv",
-        "net": {
-            "ip": "127.0.0.1",
-            "port": 12345,
-        },
-        "params": {
-            "device_ip": DEVICE_IP,
-            "device_port": HEXARM_DEVICE_PORT,
-            "control_hz": 500,
-            "arm_type": ARM_TYPE,
-            "use_gripper": USE_GRIPPER,
-            "sens_ts": True,
+        "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_hexarm"],
+        "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_hexarm"],
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
+            "params": {
+                "device_ip": DEVICE_IP,
+                "device_port": HEXARM_DEVICE_PORT,
+                "control_hz": 500,
+                "arm_type": ARM_TYPE,
+                "use_gripper": USE_GRIPPER,
+                "sens_ts": True,
+            },
         },
     },
 }
 
 
 def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
-    node_srv = node_params_dict.get(
-        'robot_hexarm_srv',
-        NODE_PARAMS_DICT['robot_hexarm_srv'],
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
     )
-    node_cli = node_params_dict.get(
-        'robot_hexarm_cli',
-        NODE_PARAMS_DICT['robot_hexarm_cli'],
-    )
-    return HexNodeConfig([
-        {
-            "name":
-            node_cli['name'] if 'name' in node_cli else "robot_hexarm_cli",
-            "node_path":
-            f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_hexarm/cli.py",
-            "cfg_path":
-            f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_hexarm/cli.json",
-            "cfg": {
-                **({
-                    'net': node_cli['net']
-                } if 'net' in node_cli else {}),
-            },
-        },
-        {
-            "name":
-            node_srv['name'] if 'name' in node_srv else "robot_hexarm_srv",
-            "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_hexarm"],
-            "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_hexarm"],
-            "cfg": {
-                **({
-                    'net': node_srv['net']
-                } if 'net' in node_srv else {}),
-                **({
-                    'params': node_srv['params']
-                } if 'params' in node_srv else {}),
-            },
-        },
-    ])
 
 
 def main():

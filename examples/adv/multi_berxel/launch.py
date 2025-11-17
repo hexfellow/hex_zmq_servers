@@ -7,11 +7,8 @@
 ################################################################
 
 import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
-
-from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
+from hex_zmq_servers import HexLaunch, HexNodeConfig
+from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 
 # device config
 # cam 0
@@ -30,18 +27,33 @@ CAM_2_SERIAL_NUMBER = "P100RYB5516M2B066"
 CAM_2_EXPOSURE = 10000
 CAM_2_SENS_TS = True
 
-NODE_CFGS = [
-    {
+# node params
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
+NODE_PARAMS_DICT = {
+    "multi_berxel_cli": {
         "name": "multi_berxel_cli",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path":
         f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/multi_berxel/cli.py",
         "cfg_path":
         f"{HEX_ZMQ_SERVERS_DIR}/../examples/adv/multi_berxel/cli.json",
+        "cfg": {
+            "depth_range": [70, 1000],
+            "crop": [0, 400, 0, 640],
+            "rotate_type": 0,
+            "berxel_0_net_cfg": {
+                "port": CAM_0_PORT,
+            },
+            "berxel_1_net_cfg": {
+                "port": CAM_1_PORT,
+            },
+            "berxel_2_net_cfg": {
+                "port": CAM_2_PORT,
+            }
+        },
     },
-    {
+    "cam_berxel_0_srv": {
         "name": "cam_berxel_0_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["cam_berxel"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["cam_berxel"],
         "cfg": {
@@ -55,9 +67,8 @@ NODE_CFGS = [
             },
         },
     },
-    {
+    "cam_berxel_1_srv": {
         "name": "cam_berxel_1_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["cam_berxel"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["cam_berxel"],
         "cfg": {
@@ -71,9 +82,8 @@ NODE_CFGS = [
             },
         },
     },
-    {
+    "cam_berxel_2_srv": {
         "name": "cam_berxel_2_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["cam_berxel"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["cam_berxel"],
         "cfg": {
@@ -87,11 +97,19 @@ NODE_CFGS = [
             },
         },
     },
-]
+}
+
+
+def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
+    )
 
 
 def main():
-    launch = HexLaunch(NODE_CFGS)
+    node_cfgs = get_node_cfgs()
+    launch = HexLaunch(node_cfgs)
     launch.run()
 
 
