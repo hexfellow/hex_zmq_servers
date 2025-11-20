@@ -8,7 +8,6 @@
 
 import os
 from hex_zmq_servers import HexLaunch, HexNodeConfig
-from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 
 # node params
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))

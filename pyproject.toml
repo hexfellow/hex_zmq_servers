@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "hex_zmq_servers"
-version = "0.3.1"
+version = "0.3.2"
 description = "HEXFELLOW ZMQ Servers"
 readme = "README.md"
 license = "Apache-2.0"
@@ -34,9 +34,9 @@ classifiers = [
 ]
 
 [project.optional-dependencies]
-camera = ["berxel_py_wrapper>=2.0", "opencv-python>=4.2"]
+camera = ["berxel_py_wrapper>=2.0.182", "opencv-python>=4.2"]
 mujoco = ["mujoco>=3.3.3", "opencv-python>=4.2"]
-all = ["berxel_py_wrapper>=2.0", "mujoco>=3.3.3", "opencv-python>=4.2"]
+all = ["berxel_py_wrapper>=2.0.182", "mujoco>=3.3.3", "opencv-python>=4.2"]
 
 [project.urls]
 Homepage = "https://github.com/hexfellow/hex_zmq_servers"

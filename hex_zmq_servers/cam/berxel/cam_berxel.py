@@ -178,7 +178,7 @@ class HexCamBerxel(HexCamBase):
                     device_idx = idx
                     break
             if device_idx == -1:
-                print("can not find device with serial number")
+                print(f"can not find device with serial number: {serial_number}")
                 print("available device serial numbers:")
                 for device in device_list:
                     print(f"{device.serialNumber}")
@@ -253,7 +253,7 @@ class HexCamBerxel(HexCamBase):
         if self.__device is None:
             return
 
-        ret = self.__context.clsoeDevice(self.__device)
+        ret = self.__context.closeDevice(self.__device)
         if ret == 0:
             print("clsoe device succeed")
         else:
