@@ -6,12 +6,12 @@
 # Date  : 2025-09-15
 ################################################################
 
-from .mujoco_archer_d6y import HexMujocoArcherD6y
-from .mujoco_archer_d6y_cli import HexMujocoArcherD6yClient
-from .mujoco_archer_d6y_srv import HexMujocoArcherD6yServer
+from .mujoco_archer_y6 import HexMujocoArcherY6   
+from .mujoco_archer_y6_cli import HexMujocoArcherY6Client
+from .mujoco_archer_y6_srv import HexMujocoArcherY6Server
 
 __all__ = [
-    "HexMujocoArcherD6y",
-    "HexMujocoArcherD6yClient",
-    "HexMujocoArcherD6yServer",
+    "HexMujocoArcherY6",
+    "HexMujocoArcherY6Client",
+    "HexMujocoArcherY6Server",
 ]

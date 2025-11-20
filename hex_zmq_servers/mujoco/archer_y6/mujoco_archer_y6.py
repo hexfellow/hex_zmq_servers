@@ -8,6 +8,7 @@
 
 import os
 import copy
+import threading
 import cv2
 import numpy as np
 
@@ -21,10 +22,11 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from hex_robo_utils import HexCtrlUtilMitJoint as CtrlUtil
 
 MUJOCO_CONFIG = {
-    "states_rate": 250,
+    "states_rate": 500,
     "img_rate": 30,
     "tau_ctrl": False,
     "mit_kp": [200.0, 200.0, 200.0, 75.0, 15.0, 15.0, 20.0],
@@ -34,7 +36,7 @@ MUJOCO_CONFIG = {
 }
 
 
-class HexMujocoArcherD6y(HexMujocoBase):
+class HexMujocoArcherY6(HexMujocoBase):
 
     def __init__(
         self,
@@ -122,12 +124,13 @@ class HexMujocoArcherD6y(HexMujocoBase):
             self.__viewer.sync()
         return True
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         states_robot_value = hex_values[0]
         states_obj_value = hex_values[1]
         cmds_robot_value = hex_values[2]
         rgb_value = hex_values[3]
         depth_value = hex_values[4]
+        stop_event = hex_values[5]
 
         last_states_ts = {"s": 0, "ns": 0}
         states_robot_count = 0
@@ -140,7 +143,7 @@ class HexMujocoArcherD6y(HexMujocoBase):
         states_trig_count = 0
         img_trig_count = 0
 
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             states_trig_count += 1
             if states_trig_count >= self.__states_trig_thresh:
                 states_trig_count = 0
@@ -167,8 +170,7 @@ class HexMujocoArcherD6y(HexMujocoBase):
                 cmds_robot_pack = cmds_robot_value.get(timeout_s=-1.0)
                 if cmds_robot_pack is not None:
                     ts, seq, cmds = cmds_robot_pack
-                    delta_seq = (seq - last_cmds_robot_seq) % self._max_seq_num
-                    if delta_seq > 0 and delta_seq < 1e6:
+                    if seq != last_cmds_robot_seq:
                         last_cmds_robot_seq = seq
                         if hex_zmq_ts_delta_ms(hex_zmq_ts_now(), ts) < 200.0:
                             self.__set_cmds(cmds)
@@ -197,6 +199,9 @@ class HexMujocoArcherD6y(HexMujocoBase):
             # sleep
             rate.sleep()
 
+        # close
+        self.close()
+
     def __get_states(self):
         pos = copy.deepcopy(self.__data.qpos)
         vel = copy.deepcopy(self.__data.qvel)
@@ -213,23 +218,38 @@ class HexMujocoArcherD6y(HexMujocoBase):
     def __set_cmds(self, cmds: np.ndarray):
         tau_cmds = None
         if not self.__tau_ctrl:
+            cmd_pos = None
+            tar_vel = np.zeros(cmds.shape[0])
+            cmd_tor = np.zeros(cmds.shape[0])
+            cmd_kp = self.__mit_kp.copy()
+            cmd_kd = self.__mit_kd.copy()
             if len(cmds.shape) == 1:
-                cmd_pos = cmds.copy()
-                cmd_tor = np.zeros_like(cmds)
+                cmd_pos = cmds
+            elif len(cmds.shape) == 2:
+                if cmds.shape[1] == 2:
+                    cmd_pos = cmds[:, 0].copy()
+                    cmd_tor = cmds[:, 1].copy()
+                elif cmds.shape[1] == 5:
+                    cmd_pos = cmds[:, 0].copy()
+                    tar_vel = cmds[:, 1].copy()
+                    cmd_tor = cmds[:, 2].copy()
+                    cmd_kp = cmds[:, 3].copy()
+                    cmd_kd = cmds[:, 4].copy()
+                else:
+                    raise ValueError(f"The shape of cmds is invalid: {cmds.shape}")
             else:
-                cmd_pos = cmds[:, 0].copy()
-                cmd_tor = cmds[:, 1].copy()
-            cmd_pos = self._apply_pos_limits(
+                raise ValueError(f"The shape of cmds is invalid: {cmds.shape}")
+            tar_pos = self._apply_pos_limits(
                 cmd_pos,
                 self._limits[0, :, 0],
                 self._limits[0, :, 1],
             )
-            cmd_pos[-1] /= self.__gripper_ratio
+            tar_pos[-1] /= self.__gripper_ratio
             tau_cmds = self.__mit_ctrl(
-                self.__mit_kp,
-                self.__mit_kd,
-                cmd_pos,
-                np.zeros(len(self.__state_robot_idx)),
+                cmd_kp,
+                cmd_kd,
+                tar_pos,
+                tar_vel,
                 self.__data.qpos[self.__state_robot_idx],
                 self.__data.qvel[self.__state_robot_idx],
                 cmd_tor,
@@ -259,8 +279,11 @@ class HexMujocoArcherD6y(HexMujocoBase):
         }
 
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
         self.__rgb_cam.close()
         self.__depth_cam.close()
         if not self.__headless:
             self.__viewer.close()
+        hex_log(HEX_LOG_LEVEL["info"], "HexMujocoArcherY6 closed")

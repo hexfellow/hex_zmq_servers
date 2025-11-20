@@ -34,7 +34,7 @@ hex_zmq_servers/
 
 ### Mujoco
 
-- **archer_d6y**: Physical simulation of Archer D6Y robot
+- **archer_y6**: Physical simulation of Archer Y6 robot
 - **e3_desktop**: Physical simulation of E3 Desktop robot
 
 ## Installation

@@ -6,6 +6,7 @@
 # Date  : 2025-09-16
 ################################################################
 
+import threading
 import numpy as np
 from abc import abstractmethod
 
@@ -30,7 +31,7 @@ class HexCamBase(HexDeviceBase):
         HexDeviceBase.__del__(self)
 
     @abstractmethod
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         raise NotImplementedError(
             "`work_loop` should be implemented by the child class")
 
@@ -97,7 +98,11 @@ class HexCamServerBase(HexZMQServerBase):
 
     def work_loop(self):
         try:
-            self._device.work_loop([self._rgb_value, self._depth_value])
+            self._device.work_loop([
+                self._rgb_value,
+                self._depth_value,
+                self._stop_event,
+            ])
         finally:
             self._device.close()
 

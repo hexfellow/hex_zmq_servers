@@ -7,11 +7,8 @@
 ################################################################
 
 import os
-
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../hex_zmq_servers"
-
-from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
+from hex_zmq_servers import HexLaunch, HexNodeConfig
+from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 
 # robot model config
 ARM_TYPE = "archer_l6y"
@@ -25,35 +22,57 @@ else:
 DEVICE_IP = "192.168.1.101"
 HEXARM_DEVICE_PORT = 8439
 
-NODE_CFGS = [
-    {
-        "name": "hexarm_robot_cli",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
+# node params
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../hex_zmq_servers"
+NODE_PARAMS_DICT = {
+    # cli
+    "robot_hexarm_cli": {
+        "name": "robot_hexarm_cli",
         "node_path":
-        f"{HEX_ZMQ_SERVERS_DIR}/../examples/hex_arm_robot_cs/cli.py",
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_hexarm/cli.py",
         "cfg_path":
-        f"{HEX_ZMQ_SERVERS_DIR}/../examples/hex_arm_robot_cs/cli.json",
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_hexarm/cli.json",
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
+        },
     },
-    {
+    # srv
+    "robot_hexarm_srv": {
         "name": "robot_hexarm_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_hexarm"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_hexarm"],
         "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
             "params": {
                 "device_ip": DEVICE_IP,
+                "device_port": HEXARM_DEVICE_PORT,
                 "control_hz": 500,
                 "arm_type": ARM_TYPE,
                 "use_gripper": USE_GRIPPER,
                 "sens_ts": True,
-            }
-        }
+            },
+        },
     },
-]
+}
+
+
+def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
+    )
 
 
 def main():
-    launch = HexLaunch(NODE_CFGS)
+    node_cfgs = get_node_cfgs()
+    launch = HexLaunch(node_cfgs)
     launch.run()
 
 

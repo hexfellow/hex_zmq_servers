@@ -15,7 +15,7 @@ from hex_zmq_servers import (
     HexRate,
     HEX_LOG_LEVEL,
     hex_log,
-    HexMujocoArcherD6yClient,
+    HexMujocoArcherY6Client,
 )
 from hex_robo_utils import HexDynUtil as DynUtil
 from hex_robo_utils import quat_mul
@@ -78,6 +78,8 @@ def wait_client_working(client, timeout: float = 5.0) -> bool:
     for _ in range(int(timeout * 10)):
         working = client.is_working()
         if working is not None and working["cmd"] == "is_working_ok":
+            if hasattr(client, "seq_clear"):
+                client.seq_clear()
             return True
         else:
             time.sleep(0.1)
@@ -196,7 +198,7 @@ def main():
         missing_key = ke.args[0]
         raise ValueError(f"cfg is not valid, missing key: {missing_key}")
 
-    mujoco_client = HexMujocoArcherD6yClient(net_config=mujoco_net_cfg)
+    mujoco_client = HexMujocoArcherY6Client(net_config=mujoco_net_cfg)
     dyn_util = DynUtil(
         model_path=model_path,
         last_link=last_link,

@@ -1,5 +1,5 @@
 {
-    "model_path": "examples/adv/urdf/archer_d6y.urdf",
+    "model_path": "examples/adv/urdf/archer_y6.urdf",
     "last_link": "link_6",
     "mujoco_net_cfg": {
         "ip": "127.0.0.1",

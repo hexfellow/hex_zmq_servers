@@ -6,13 +6,15 @@
 # Date  : 2025-09-25
 ################################################################
 
+from __future__ import annotations
+
 import json
 import os, sys, signal, subprocess, threading, time
 import termios
+import importlib.util
 
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List
 
 HEX_LOG_LEVEL = {
     "info": 0,
@@ -29,16 +31,187 @@ def hex_err(message):
     print(message, file=sys.stderr)
 
 
+def dict_update(dict_raw: dict, dict_new: dict, add_new: bool = False):
+    for key, value in dict_new.items():
+        if key in dict_raw:
+            if isinstance(dict_raw[key], dict) and isinstance(value, dict):
+                dict_update(dict_raw[key], value)
+            else:
+                dict_raw[key] = value
+        elif add_new:
+            dict_raw[key] = value
+
+
+def hex_dict_str(dict_raw: dict, indent: int = 0) -> str:
+    print_str = ("\n" + "*" * 50 + "\n") if indent == 0 else ""
+    for key, value in dict_raw.items():
+        if isinstance(value, dict):
+            print_str += f"{' ' * indent * 4}{key}:\n{hex_dict_str(value, indent + 1)}"
+        else:
+            print_str += f"{' ' * indent * 4}{key}: {value}\n"
+    print_str += ("*" * 50) if indent == 0 else ""
+    return print_str
+
+
+class HexNodeConfig():
+
+    def __init__(
+        self,
+        init_params: dict[str, dict] | list[dict] | HexNodeConfig = {},
+    ):
+        len_init_params = len(init_params)
+        if isinstance(init_params, list):
+            self._cfgs_dict = {cfg["name"]: cfg for cfg in init_params}
+        elif isinstance(init_params, dict):
+            self._cfgs_dict = init_params
+            if len_init_params != len(self._cfgs_dict):
+                raise ValueError(f"Invalid init_params: {init_params}")
+        elif isinstance(init_params, HexNodeConfig):
+            self._cfgs_dict = init_params._cfgs_dict
+        else:
+            raise ValueError(f"Invalid init_params: {init_params}")
+
+        assert len(self._cfgs_dict
+                   ) == len_init_params, f"Invalid init_params: {init_params}"
+
+    def __len__(self) -> int:
+        return len(self._cfgs_dict)
+
+    def get_cfgs(self, use_list: bool = True) -> list[dict]:
+        if use_list:
+            return list(self._cfgs_dict.values())
+        else:
+            return self._cfgs_dict
+
+    def add_cfgs(
+        self,
+        node_cfgs: list[dict] | dict[str, dict] | HexNodeConfig,
+    ):
+        new_cfgs = {}
+        if isinstance(node_cfgs, list):
+            new_cfgs = {cfg["name"]: cfg for cfg in node_cfgs}
+        elif isinstance(node_cfgs, dict):
+            new_cfgs = node_cfgs
+        elif isinstance(node_cfgs, HexNodeConfig):
+            new_cfgs = node_cfgs.get_cfgs(use_list=False)
+        else:
+            raise ValueError(f"Invalid node_cfgs: {node_cfgs}")
+
+        dict_update(self._cfgs_dict, new_cfgs, add_new=True)
+
+    def __str__(self) -> str:
+        print_str = f"[HexNodeConfig] Total {len(self._cfgs_dict)} nodes:\n"
+        for name in self._cfgs_dict.keys():
+            print_str += f"  - {name}\n"
+        return print_str
+
+    @staticmethod
+    def parse_node_params_dict(
+        node_params_dict: dict,
+        node_default_params_dict: dict,
+    ) -> HexNodeConfig:
+        node_dict = {}
+        for cur_name, cur_default_params in node_default_params_dict.items():
+            if cur_name in node_params_dict.keys():
+                dict_update(cur_default_params, node_params_dict[cur_name])
+            node_dict[cur_name] = cur_default_params
+        return HexNodeConfig(node_dict)
+
+    @staticmethod
+    def get_launch_params_cfgs(
+        launch_params_dict: dict,
+        launch_default_params_dict: dict,
+        launch_path_dict: dict,
+    ) -> HexNodeConfig:
+        cfg_list = []
+        for launch_name, launch_path in launch_path_dict.items():
+            node_default_params_dict = launch_default_params_dict.get(
+                launch_name, {})
+
+            node_params_dict = {}
+            if launch_name in launch_params_dict.keys():
+                node_params_dict = launch_params_dict[launch_name]
+            else:
+                for node_name in node_default_params_dict.keys():
+                    if node_name in launch_params_dict.keys():
+                        node_params_dict[node_name] = launch_params_dict[
+                            node_name]
+
+            launch_update_cfg = HexNodeConfig.parse_node_params_dict(
+                node_params_dict,
+                node_default_params_dict,
+            )
+
+            cfg_list.append(
+                HexNodeConfig.get_node_cfgs_from_launch(
+                    launch_path,
+                    launch_update_cfg,
+                ))
+
+        final_cfg = HexNodeConfig()
+        for cfg in cfg_list:
+            # use name as key to make sure every node has a unique name
+            final_cfg.add_cfgs(cfg.get_cfgs(use_list=True))
+        print(f"final_cfg: {final_cfg}")
+        return final_cfg
+
+    @staticmethod
+    def get_node_cfgs_from_launch(
+        launch_path: str,
+        params: dict | HexNodeConfig = {},
+    ) -> HexNodeConfig:
+        # normalize the path
+        launch_path = os.path.abspath(launch_path)
+        if not os.path.exists(launch_path):
+            raise FileNotFoundError(f"Launch file not found: {launch_path}")
+
+        # load the module dynamically
+        spec = importlib.util.spec_from_file_location("launch_module",
+                                                      launch_path)
+        if spec is None or spec.loader is None:
+            raise ImportError(f"Failed to load module from: {launch_path}")
+
+        # load module
+        launch_module = importlib.util.module_from_spec(spec)
+        sys.modules["launch_module"] = launch_module
+        spec.loader.exec_module(launch_module)
+
+        # check if `get_node_cfgs` function exists
+        if not hasattr(launch_module, "get_node_cfgs"):
+            raise AttributeError(
+                f"Function 'get_node_cfgs' not found in {launch_path}")
+
+        # call `get_node_cfgs` function
+        get_node_cfgs_func = getattr(launch_module, "get_node_cfgs")
+        if isinstance(params, dict):
+            print("params is dict")
+            node_cfgs = get_node_cfgs_func(params)
+        elif isinstance(params, HexNodeConfig):
+            print("params is HexNodeConfig")
+            node_cfgs = get_node_cfgs_func(params.get_cfgs(use_list=False))
+        else:
+            raise ValueError(f"Invalid params: {params}")
+        return node_cfgs
+
+
 class HexLaunch:
 
     def __init__(
         self,
-        node_cfgs: List[dict],
+        node_cfgs: list[dict] | dict[str, dict] | HexNodeConfig,
         log_dir: str = "logs",
         min_level: int = HEX_LOG_LEVEL["warn"],
     ):
-        self.__node_cfgs = node_cfgs
-        self.__state: Dict[str, dict] = {}
+        if isinstance(node_cfgs, list):
+            node_cfgs = HexNodeConfig(node_cfgs)
+        elif isinstance(node_cfgs, dict):
+            node_cfgs = HexNodeConfig(node_cfgs)
+        elif isinstance(node_cfgs, HexNodeConfig):
+            node_cfgs = node_cfgs
+        else:
+            raise ValueError(f"Invalid node_cfgs: {node_cfgs}")
+        self.__node_cfgs = node_cfgs.get_cfgs(use_list=True)
+        self.__state: dict[str, dict] = {}
         self.__stop_event = threading.Event()
         self.__log_dir = Path(log_dir)
         self.__log_dir.mkdir(parents=True, exist_ok=True)
@@ -102,19 +275,11 @@ class HexLaunch:
             with open(cfg_path, "r", encoding="utf-8") as f:
                 cfg_file = json.load(f)
                 cfg_obj.update(cfg_file)
-        self.__dict_update(cfg_obj, node_cfg.get("cfg", {}))
+        dict_update(cfg_obj, node_cfg.get("cfg", {}))
         cfg_str = json.dumps(cfg_obj)
 
         # build cmd
         return [python_exe, "-u", str(node_path)] + ["--cfg", cfg_str]
-
-    def __dict_update(self, dict_raw: dict, dict_new: dict):
-        for key, value in dict_new.items():
-            if key in dict_raw:
-                if isinstance(dict_raw[key], dict) and isinstance(value, dict):
-                    self.__dict_update(dict_raw[key], value)
-                else:
-                    dict_raw[key] = value
 
     def __stream_printer(
         self,

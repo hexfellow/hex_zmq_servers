@@ -36,6 +36,7 @@ def main():
         hex_log(HEX_LOG_LEVEL["info"], f"waiting for robot to work: {i}s")
         working = client.is_working()
         if working is not None and working["cmd"] == "is_working_ok":
+            client.seq_clear()
             break
         else:
             time.sleep(1.0)

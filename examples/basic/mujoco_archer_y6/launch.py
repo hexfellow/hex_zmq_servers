@@ -10,20 +10,17 @@ import os
 from hex_zmq_servers import HexLaunch, HexNodeConfig
 from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 
-# device config
-GELLO_DEVICE = "/dev/ttyUSB0"
-
 # node params
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
 NODE_PARAMS_DICT = {
     # cli
-    "robot_gello_cli": {
-        "name": "robot_gello_cli",
+    "mujoco_archer_y6_cli": {
+        "name": "mujoco_archer_y6_cli",
         "node_path":
-        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_gello/cli.py",
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/mujoco_archer_y6/cli.py",
         "cfg_path":
-        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/robot_gello/cli.json",
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/mujoco_archer_y6/cli.json",
         "cfg": {
             "net": {
                 "ip": "127.0.0.1",
@@ -32,35 +29,19 @@ NODE_PARAMS_DICT = {
         },
     },
     # srv
-    "robot_gello_srv": {
-        "name": "robot_gello_srv",
-        "node_path": HEX_ZMQ_SERVERS_PATH_DICT["robot_gello"],
-        "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["robot_gello"],
+    "mujoco_archer_y6_srv": {
+        "name": "mujoco_archer_y6_srv",
+        "node_path": HEX_ZMQ_SERVERS_PATH_DICT["mujoco_archer_y6"],
+        "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["mujoco_archer_y6"],
         "cfg": {
             "net": {
                 "ip": "127.0.0.1",
                 "port": 12345,
             },
             "params": {
-                "idxs": [0, 1, 2, 3, 4, 5, 6],
-                "invs": [1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -3.5],
-                "limits": [
-                    [-2.7, 2.7],
-                    [-1.57, 2.09],
-                    [0, 3.14],
-                    [-1.57, 1.57],
-                    [-1.57, 1.57],
-                    [-1.57, 1.57],
-                    [0.0, 1.33],
-                ],
-                "device":
-                GELLO_DEVICE,
-                "baudrate":
-                115200,
-                "max_retries":
-                3,
-                "sens_ts":
-                True,
+                "mit_kp":
+                [1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0, 1500.0],
+                "mit_kd": [20.0, 20.0, 20.0, 20.0, 20.0, 20.0, 20.0],
             },
         },
     },
@@ -68,10 +49,11 @@ NODE_PARAMS_DICT = {
 
 
 def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
-    return HexNodeConfig.parse_node_params_dict(
-        node_params_dict,
-        NODE_PARAMS_DICT,
-    )
+    return HexNodeConfig(
+        HexNodeConfig.parse_node_params_dict(
+            node_params_dict,
+            NODE_PARAMS_DICT,
+        ))
 
 
 def main():

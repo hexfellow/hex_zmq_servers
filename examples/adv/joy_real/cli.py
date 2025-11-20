@@ -65,6 +65,8 @@ def wait_client_working(client, timeout: float = 5.0) -> bool:
     for _ in range(int(timeout * 10)):
         working = client.is_working()
         if working is not None and working["cmd"] == "is_working_ok":
+            if hasattr(client, "seq_clear"):
+                client.seq_clear()
             return True
         else:
             time.sleep(0.1)

@@ -1,5 +1,5 @@
 {
-    "model_path": "hex_zmq_servers/robot/hexarm/urdf/archer_d6y_empty.urdf",
+    "model_path": "hex_zmq_servers/robot/hexarm/urdf/archer_y6_empty.urdf",
     "last_link": "link_6",
     "use_gripper": false,
     "hexarm_master_net_cfg": {

@@ -6,6 +6,7 @@
 # Date  : 2025-09-12
 ################################################################
 
+import threading
 import numpy as np
 
 from ..robot_base import HexRobotBase
@@ -15,6 +16,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 
 ROBOT_CONFIG = {
     "dofs": [7],
@@ -45,15 +47,16 @@ class HexRobotDummy(HexRobotBase):
     def __del__(self):
         HexRobotBase.__del__(self)
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         states_value = hex_values[0]
         cmds_value = hex_values[1]
+        stop_event = hex_values[2]
 
         dummy_states = np.zeros((self._dofs[0], 3))
         states_count = 0
         last_cmds_seq = -1
         rate = HexRate(1000)
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             # states
             states_value.set((hex_zmq_ts_now(), states_count, dummy_states))
             states_count = (states_count + 1) % self._max_seq_num
@@ -62,7 +65,7 @@ class HexRobotDummy(HexRobotBase):
             cmds_pack = cmds_value.get(timeout_s=-1.0)
             if cmds_pack is not None:
                 ts, seq, cmds = cmds_pack
-                if seq > last_cmds_seq:
+                if seq != last_cmds_seq:
                     last_cmds_seq = seq
                     if hex_zmq_ts_delta_ms(hex_zmq_ts_now(), ts) < 200.0:
                         cmds = np.clip(
@@ -75,5 +78,11 @@ class HexRobotDummy(HexRobotBase):
             # sleep
             rate.sleep()
 
+        # close
+        self.close()
+
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
+        hex_log(HEX_LOG_LEVEL["info"], "HexRobotDummy closed")

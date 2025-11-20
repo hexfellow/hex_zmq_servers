@@ -7,30 +7,52 @@
 ################################################################
 
 import os
+from hex_zmq_servers import HexLaunch, HexNodeConfig
+from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 
+# node params
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 HEX_ZMQ_SERVERS_DIR = f"{SCRIPT_DIR}/../../../hex_zmq_servers"
-
-from hex_zmq_servers import HexLaunch, HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
-
-NODE_CFGS = [
-    {
+NODE_PARAMS_DICT = {
+    # cli
+    "zmq_dummy_cli": {
         "name": "zmq_dummy_cli",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
-        "node_path": f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/zmq_dummy/cli.py",
-        "cfg_path": f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/zmq_dummy/cli.json",
+        "node_path":
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/zmq_dummy/cli.py",
+        "cfg_path":
+        f"{HEX_ZMQ_SERVERS_DIR}/../examples/basic/zmq_dummy/cli.json",
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
+        },
     },
-    {
+    # srv
+    "zmq_dummy_srv": {
         "name": "zmq_dummy_srv",
-        "venv": f"{HEX_ZMQ_SERVERS_DIR}/../.venv",
         "node_path": HEX_ZMQ_SERVERS_PATH_DICT["zmq_dummy"],
         "cfg_path": HEX_ZMQ_CONFIGS_PATH_DICT["zmq_dummy"],
+        "cfg": {
+            "net": {
+                "ip": "127.0.0.1",
+                "port": 12345,
+            },
+        },
     },
-]
+}
+
+
+def get_node_cfgs(node_params_dict: dict = NODE_PARAMS_DICT):
+    return HexNodeConfig.parse_node_params_dict(
+        node_params_dict,
+        NODE_PARAMS_DICT,
+    )
 
 
 def main():
-    launch = HexLaunch(NODE_CFGS)
+    node_cfgs = get_node_cfgs()
+    launch = HexLaunch(node_cfgs)
     launch.run()
 
 

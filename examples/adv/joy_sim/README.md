@@ -2,7 +2,7 @@
 
 ## Description
 
-This example shows how to use a gamepad to control Mujoco Archer D6Y simulation.
+This example shows how to use a gamepad to control Mujoco Archer Y6 simulation.
 
 ## Structure
 

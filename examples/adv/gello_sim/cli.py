@@ -14,7 +14,7 @@ from hex_zmq_servers import (
     HEX_LOG_LEVEL,
     hex_log,
     HexRobotGelloClient,
-    HexMujocoArcherD6yClient,
+    HexMujocoArcherY6Client,
 )
 from hex_robo_utils import HexDynUtil as DynUtil
 
@@ -23,6 +23,8 @@ def wait_client_working(client, timeout: float = 5.0) -> bool:
     for _ in range(int(timeout * 10)):
         working = client.is_working()
         if working is not None and working["cmd"] == "is_working_ok":
+            if hasattr(client, "seq_clear"):
+                client.seq_clear()
             return True
         else:
             time.sleep(0.1)
@@ -45,15 +47,15 @@ def main():
         raise ValueError(f"cfg is not valid, missing key: {missing_key}")
 
     gello_client = HexRobotGelloClient(net_config=gello_net_cfg)
-    mujoco_client = HexMujocoArcherD6yClient(net_config=mujoco_net_cfg)
+    mujoco_client = HexMujocoArcherY6Client(net_config=mujoco_net_cfg)
     dyn_util = DynUtil(model_path, last_link)
 
     # wait servers to work
     if not wait_client_working(gello_client):
-        hex_log(HEX_LOG_LEVEL["error"], "gello server is not working")
+        hex_log(HEX_LOG_LEVEL["err"], "gello server is not working")
         return
     if not wait_client_working(mujoco_client):
-        hex_log(HEX_LOG_LEVEL["error"], "mujoco server is not working")
+        hex_log(HEX_LOG_LEVEL["err"], "mujoco server is not working")
         return
 
     # work loop

@@ -2,7 +2,7 @@
 
 ## Description
 
-This example shows how to use GELLO robot to control Mujoco Archer D6Y simulation in real-time. It demonstrates teleoperation where GELLO serves as the master device and the simulated robot follows its movements.
+This example shows how to use GELLO robot to control Mujoco Archer Y6 simulation in real-time. It demonstrates teleoperation where GELLO serves as the master device and the simulated robot follows its movements.
 
 ## Structure
 

@@ -1,0 +1,28 @@
+{
+    "depth_range": [
+        70,
+        1000
+    ],
+    "crop": [
+        0,
+        400,
+        0,
+        640
+    ],
+    "rotate_type": 0,
+    "berxel_0_net_cfg": {
+        "ip": "127.0.0.1",
+        "port": 12345,
+        "client_timeout_ms": 200
+    },
+    "berxel_1_net_cfg": {
+        "ip": "127.0.0.1",
+        "port": 12346,
+        "client_timeout_ms": 200
+    },
+    "berxel_2_net_cfg": {
+        "ip": "127.0.0.1",
+        "port": 12347,
+        "client_timeout_ms": 200
+    }
+}

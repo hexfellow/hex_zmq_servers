@@ -43,7 +43,7 @@ def main():
         else:
             time.sleep(0.5)
 
-    rate = HexRate(100)
+    rate = HexRate(200)
     try:
         while True:
             rgb_hdr, rgb_img = client.get_rgb()

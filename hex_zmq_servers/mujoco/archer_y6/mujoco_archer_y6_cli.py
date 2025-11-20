@@ -17,7 +17,7 @@ NET_CONFIG = {
 }
 
 
-class HexMujocoArcherD6yClient(HexMujocoClientBase):
+class HexMujocoArcherY6Client(HexMujocoClientBase):
 
     def __init__(
         self,

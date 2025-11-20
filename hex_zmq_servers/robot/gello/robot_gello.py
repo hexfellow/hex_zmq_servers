@@ -19,6 +19,7 @@ from ...zmq_base import (
     HexRate,
     HexSafeValue,
 )
+from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from dynamixel_sdk.group_sync_read import GroupSyncRead
 from dynamixel_sdk.group_sync_write import GroupSyncWrite
 from dynamixel_sdk.packet_handler import PacketHandler
@@ -103,14 +104,15 @@ class HexRobotGello(HexRobotBase):
         # start work loop
         self._working.set()
 
-    def work_loop(self, hex_values: list[HexSafeValue]):
+    def work_loop(self, hex_values: list[HexSafeValue | threading.Event]):
         states_value = hex_values[0]
         cmds_value = hex_values[1]
+        stop_event = hex_values[2]
 
         states_count = 0
         last_cmds_seq = -1
         rate = HexRate(1000)
-        while self._working.is_set():
+        while self._working.is_set() and not stop_event.is_set():
             # states
             ts, states = self.__get_states()
             if states is not None:
@@ -121,14 +123,16 @@ class HexRobotGello(HexRobotBase):
             cmds_pack = cmds_value.get(timeout_s=-1.0)
             if cmds_pack is not None:
                 ts, seq, cmds = cmds_pack
-                delta_seq = (seq - last_cmds_seq) % self._max_seq_num
-                if delta_seq > 0 and delta_seq < 1e6:
+                if seq != last_cmds_seq:
                     last_cmds_seq = seq
                     if hex_zmq_ts_delta_ms(hex_zmq_ts_now(), ts) < 200.0:
                         self.__set_cmds(cmds)
 
             # sleep
             rate.sleep()
+
+        # close
+        self.close()
 
     def __get_states(self):
         with self.__lock:
@@ -157,7 +161,7 @@ class HexRobotGello(HexRobotBase):
                 self._limits[:, 0],
                 self._limits[:, 1],
             )
-            return ts, rads
+            return ts if self.__sens_ts else hex_zmq_ts_now(), rads
 
     def __set_cmds(self, cmds: np.ndarray):
         if len(cmds) != len(self.__idxs):
@@ -349,5 +353,8 @@ class HexRobotGello(HexRobotBase):
         self.__torque_enabled = enable
 
     def close(self):
+        if not self._working.is_set():
+            return
         self._working.clear()
         self.__port_handler.closePort()
+        hex_log(HEX_LOG_LEVEL["info"], "HexRobotGello closed")

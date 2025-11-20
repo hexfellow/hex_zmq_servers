@@ -41,6 +41,13 @@
                                 <geom pos="0.04 0 0.12" quat="0.6830127 0.6830127 0.1830127 -0.1830127" type="mesh" rgba="0.1 0.1 0.1 1" mesh="camera_link" />
                                 <camera name="end_camera" pos="0.066 0 0.105" quat="0.8660254 0.0 -0.5 0.0" fovy="50"/>
 
+                                # ee frame
+                                <body name="ee_frame" pos="0.1870 0.0 0.0" quat="1 0 0 0">
+                                    <geom type="cylinder" size="0.002 0.01" pos="0.01 0.00 0.00" quat="0.7071068 0.0000000 0.7071068 0.0000000" rgba="1 0 0 1" contype="0" conaffinity="0" group="4"/>
+                                    <geom type="cylinder" size="0.002 0.01" pos="0.00 0.01 0.00" quat="0.7071068 0.7071068 0.0000000 0.0000000" rgba="0 1 0 1" contype="0" conaffinity="0" group="4"/>
+                                    <geom type="cylinder" size="0.002 0.01" pos="0.00 0.00 0.01" quat="1.0000000 0.0000000 0.0000000 0.0000000" rgba="0 0 1 1" contype="0" conaffinity="0" group="4"/>
+                                </body>
+
                                 # gripper helper
                                 <body name="gripper_left_helper_link" pos="0.057667 0.030604 2.5e-05">
                                     <inertial pos="0.00299357 0.0232625 -5e-05" quat="0.996724 0 0 0.0808839" mass="0.00594562" diaginertia="2.74798e-06 1.47567e-06 1.34732e-06"/>
