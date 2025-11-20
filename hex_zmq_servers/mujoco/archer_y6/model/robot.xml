@@ -28,14 +28,14 @@
                         <geom type="mesh" rgba="0.792157 0.792157 0.792157 1" mesh="arm_link_4"/>
 
                         # link 5
-                        <body name="link_5" pos="-0.0553006 0 0.07025">
+                        <body name="link_5" pos="-0.0553 0 0.070">
                             <inertial pos="0.0292 0.0001 -0.0107" quat="0.707107 0 0 0.707107" mass="0.3984" diaginertia="0.0003 0.0002 0.0002"/>
                             <joint name="joint_5" pos="0 0 0" axis="-1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
                             <geom type="mesh" rgba="0.898039 0.917647 0.929412 1" mesh="arm_link_5"/>
 
                             # gripper base link
-                            <body name="gripper_base_link" pos="0.0578 0 0.02895" quat="0.707107 0.0 -0.707107 0.0">
-                                <inertial pos="-0.0139 0.0001 0.0578" quat="0.567843 0.421372 0.421372 0.567843" mass="0.7651" diaginertia="0.0021 0.00143028 0.00106972"/>
+                            <body name="gripper_base_link" pos="0.0553 0 0.029" quat="0.707107 0.0 -0.707107 0.0">
+                                <inertial pos="-0.0139 0.0001 0.0553" quat="0.567843 0.421372 0.421372 0.567843" mass="0.7651" diaginertia="0.0021 0.00143028 0.00106972"/>
                                 <joint name="joint_6" pos="0 0 0" axis="1 0 0" range="-1.57 1.57" limited="true" armature="0.1" damping="3.0" frictionloss="1.0"/>
                                 <geom type="mesh" rgba="1 1 1 1" mesh="gripper_base_link"/>
                                 <geom pos="0.04 0 0.12" quat="0.6830127 0.6830127 0.1830127 -0.1830127" type="mesh" rgba="0.1 0.1 0.1 1" mesh="camera_link" />
