@@ -41,11 +41,14 @@ def hex_zmq_ts_delta_ms(curr_ts, hdr_ts) -> float:
 
 class HexRate:
 
-    def __init__(self, hz: float):
+    def __init__(self, hz: float, spin_threshold_ns: int = 1_000_000):
         if hz <= 0:
             raise ValueError("hz must be greater than 0")
+        if spin_threshold_ns < 0:
+            raise ValueError("spin_threshold_ns must be non-negative")
         self.__period_ns = int(1_000_000_000 / hz)
         self.__next_ns = self.__now_ns() + self.__period_ns
+        self.__spin_threshold_ns = spin_threshold_ns
 
     @staticmethod
     def __now_ns() -> int:
@@ -55,14 +58,27 @@ class HexRate:
         self.__next_ns = self.__now_ns() + self.__period_ns
 
     def sleep(self):
-        start_ns = self.__now_ns()
-        remain_ns = self.__next_ns - start_ns
-        if remain_ns > 0:
-            time.sleep(remain_ns / 1_000_000_000.0)
-            self.__next_ns += self.__period_ns
-        else:
-            needed_period = (start_ns - self.__next_ns) // self.__period_ns + 1
+        target_ns = self.__next_ns
+        now_ns = self.__now_ns()
+        remain_ns = target_ns - now_ns
+        if remain_ns <= 0:
+            needed_period = (now_ns - target_ns) // self.__period_ns + 1
             self.__next_ns += needed_period * self.__period_ns
+            return
+
+        spin_threshold = min(self.__spin_threshold_ns, self.__period_ns)
+        coarse_sleep_ns = remain_ns - spin_threshold
+        if coarse_sleep_ns > 0:
+            time.sleep(coarse_sleep_ns / 1_000_000_000.0)
+
+        while True:
+            now_ns = self.__now_ns()
+            if now_ns >= target_ns:
+                break
+            if target_ns - now_ns > 50_000:
+                time.sleep(0)
+
+        self.__next_ns += self.__period_ns
 
 
 ################################################################

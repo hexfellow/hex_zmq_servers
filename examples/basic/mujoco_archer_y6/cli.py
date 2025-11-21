@@ -48,7 +48,7 @@ def main():
     # get dofs, limits and intri
     dofs = client.get_dofs()
     limits = client.get_limits()
-    intri = client.get_intri()
+    _, intri = client.get_intri()
     hex_log(HEX_LOG_LEVEL["info"], f"dofs: {dofs}")
     hex_log(HEX_LOG_LEVEL["info"], f"limits: {limits}")
     hex_log(HEX_LOG_LEVEL["info"], f"intri: {intri}")

@@ -55,7 +55,7 @@ def main():
             time.sleep(0.5)
 
     # get intrinsic params
-    intri = client.get_intri()
+    _, intri = client.get_intri()
     hex_log(HEX_LOG_LEVEL["info"], f"intri: {intri}")
 
     # get rgb and depth

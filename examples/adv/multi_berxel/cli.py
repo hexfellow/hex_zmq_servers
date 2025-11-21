@@ -124,9 +124,9 @@ def main():
         return
 
     # get intrinsic params
-    intri_0 = client_0.get_intri()
-    intri_1 = client_1.get_intri()
-    intri_2 = client_2.get_intri()
+    _, intri_0 = client_0.get_intri()
+    _, intri_1 = client_1.get_intri()
+    _, intri_2 = client_2.get_intri()
     hex_log(HEX_LOG_LEVEL["info"], f"intri_0: {intri_0}")
     hex_log(HEX_LOG_LEVEL["info"], f"intri_1: {intri_1}")
     hex_log(HEX_LOG_LEVEL["info"], f"intri_2: {intri_2}")

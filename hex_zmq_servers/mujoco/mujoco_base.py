@@ -156,34 +156,11 @@ class HexMujocoClientBase(HexZMQClientBase):
             print(f"\033[91m{req_cmd} failed: {e}\033[0m")
             return None, None
 
-    def get_obj_pose(self):
-        hdr, obj_pose = self.request({
-            "cmd":
-            "get_obj_pose",
-            "args": (1 + self._obj_pose_seq) % self._max_seq_num,
-        })
-        try:
-            cmd = hdr["cmd"]
-            if cmd == "get_obj_pose_ok":
-                self._obj_pose_seq = hdr["args"]
-                return hdr, obj_pose
-            else:
-                return None, None
-        except KeyError:
-            print(f"\033[91m{hdr['cmd']} requires `cmd`\033[0m")
-            return None, None
-        except Exception as e:
-            print(f"\033[91mget_obj_pose failed: {e}\033[0m")
-            return None, None
-
     def set_cmds(
         self,
         cmds: np.ndarray,
-        robot_name: str | None = None,
     ) -> bool:
         req_cmd = "set_cmds"
-        if robot_name is not None:
-            req_cmd += f"_{robot_name}"
         hdr, _ = self.request(
             {
                 "cmd": req_cmd,
