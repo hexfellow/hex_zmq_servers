@@ -12,16 +12,17 @@ from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 from hex_zmq_servers import HEXARM_URDF_PATH_DICT
 
 END_POSE = [0.0, 0.0, 0.0, 0.7071068, 0.0, -0.7071068, 0.0]
-INIT_POSE = [0.45, 0.0, 0.25, 1.0, 0.0, 0.0, 0.0]
+INIT_POSE = [0.45, 0.0, 0.25, 0.9238795, 0.0, 0.0, 0.3826834]
 ARM_TYPE = "archer_y6"
-GRIPPER_TYPE = "gp100"
+GRIPPER_TYPE = "gp100_p050"
 
 # Mit config
 MIT_CFG = {
     "joint_kp": [200.0, 200.0, 250.0, 150.0, 100.0, 100.0, 100.0],
     "joint_kd": [5.0, 5.0, 5.0, 5.0, 1.0, 1.0, 1.0],
-    "se3_kp": [500.0, 500.0, 500.0, 100.0, 100.0, 100.0],
+    "se3_kp": [100.0, 100.0, 100.0, 50.0, 50.0, 50.0],
     "se3_kd": [10.0, 10.0, 10.0, 5.0, 5.0, 5.0]
+    # "se3_kd": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 }
 
 # node params

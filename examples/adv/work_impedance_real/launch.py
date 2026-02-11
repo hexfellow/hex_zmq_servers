@@ -20,15 +20,15 @@ ARM_TYPE = "archer_y6"
 GRIPPER_TYPE = "empty"
 
 # device config
-DEVICE_IP = "172.18.5.116"
+DEVICE_IP = "172.18.24.90"
 HEXARM_DEVICE_PORT = 8439
 
 # Mit config
 MIT_CFG = {
     "joint_kp": [200.0, 200.0, 250.0, 150.0, 100.0, 100.0, 100.0],
     "joint_kd": [5.0, 5.0, 5.0, 5.0, 1.0, 1.0, 1.0],
-    "se3_kp": [500.0, 500.0, 500.0, 100.0, 100.0, 100.0],
-    "se3_kd": [10.0, 10.0, 10.0, 5.0, 5.0, 5.0]
+    "se3_kp": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+    "se3_kd": [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
 }
 
 # node params

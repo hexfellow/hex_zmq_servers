@@ -58,7 +58,7 @@ def interp_arm(cur_q, tar_joint, grip_flag, use_gripper=True, err_limit=0.05):
     else:
         mid_joint, interp_flag = interp_joint(
             cur_q,
-            tar_joint[:-1],
+            tar_joint,
             err_limit=err_limit,
         )
     return mid_joint, interp_flag
@@ -124,6 +124,10 @@ def main():
         "robot_gripper": int(dof_arr[1]) if len(dof_arr) > 1 else None,
         "sum": int(dof_arr.sum()),
     }
+    # limit len of joint_kp and joint_kd must be equal to the number of dofs
+    joint_kp = joint_kp[:dofs["sum"]]
+    joint_kd = joint_kd[:dofs["sum"]]
+    
     limits = hexarm_client.get_limits()
     assert limits.shape[0] == dof_arr.sum(
     ), "The number of limits must be equal to the number of dofs"
@@ -147,6 +151,8 @@ def main():
         cur_dse3 = None
         c_mat = None
         g_vec = None
+        arm_dq = None
+        arm_q = None
         while True:
             robot_states_hdr, robot_states = hexarm_client.get_states("robot")
             if robot_states_hdr is not None:
@@ -154,11 +160,15 @@ def main():
                 cur_q = robot_states[:, 0]
                 cur_dq = robot_states[:, 1]
                 cur_eff = robot_states[:, 2]
-                cur_pos, cur_quat = dyn_util.forward_kinematics(cur_q[:-1])[-1]
+
+                arm_q = cur_q[:dofs["robot_arm"]]
+                arm_dq = cur_dq[:dofs["robot_arm"]]
+
+                cur_pos, cur_quat = dyn_util.forward_kinematics(arm_q)[-1]
                 trans_cur_in_base = part2trans(cur_pos, cur_quat)
                 _, c_mat, g_vec, jac, _ = dyn_util.dynamic_params(
-                    cur_q[:-1], cur_dq[:-1])
-                cur_dse3 = jac @ cur_dq[:-1]
+                    arm_q, arm_dq, base_frame=True)
+                cur_dse3 = jac @ arm_dq
             else:
                 cur_ts = None
 
@@ -181,14 +191,14 @@ def main():
                             hex_log(HEX_LOG_LEVEL["info"], f"IK solved for init_pose, tar_joint: {tar_joint}")
                         else:
                             hex_log(HEX_LOG_LEVEL["err"], "IK failed for init_pose")
-                            tar_joint = cur_q[:-1].copy()  # Use current joint as fallback
+                            tar_joint = arm_q.copy()  # Use current joint as fallback
 
                         # Set cmds to hold current position while waiting for IK solution
-                        tau_comp = np.zeros(7)
-                        tau_model = c_mat @ cur_dq[:-1] + g_vec
-                        tau_comp[:-1] = tau_model
+                        tau_comp = np.zeros(dofs["sum"])
+                        tau_model = c_mat @ arm_dq + g_vec
+                        tau_comp[:dofs["robot_arm"]] = tau_model
                         cmds = np.vstack(
-                            (cur_q, np.zeros(7), tau_comp, joint_kp, joint_kd)).T
+                            (cur_q, np.zeros(dofs["sum"]), tau_comp, joint_kp, joint_kd)).T
 
                     else:
                         # Try to reach target joint
@@ -198,7 +208,7 @@ def main():
                             cur_q,
                             tar_joint,
                             grip_flag=False,
-                            use_gripper=True,
+                            use_gripper=False if dofs["robot_gripper"] is None else True,
                             err_limit=0.05,
                         )
                         # Arrive target joint
@@ -207,16 +217,16 @@ def main():
                             is_init = False
                         
                         # Calculate tau_comp
-                        tau_comp = np.zeros(7)
-                        tau_model = c_mat @ cur_dq[:-1] + g_vec
-                        tau_comp[:-1] = tau_model
+                        tau_comp = np.zeros(dofs["sum"])
+                        tau_model = c_mat @ arm_dq + g_vec
+                        tau_comp[:dofs["robot_arm"]] = tau_model
                         
                         # Calculate cmds
                         cmds = np.vstack(
-                            (mid_q, np.zeros(7), tau_comp, joint_kp, joint_kd)).T
+                            (mid_q, np.zeros(dofs["sum"]), tau_comp, joint_kp, joint_kd)).T
                 else:
                     # check if far away from init pose
-                    if np.linalg.norm(cur_pos - init_pos) > 0.2:
+                    if np.linalg.norm(cur_pos - init_pos) > 0.3:
                         hex_log(HEX_LOG_LEVEL["info"], "Far away from init pose")
                         is_init = True
                         continue
@@ -226,40 +236,39 @@ def main():
                     tar_quat = init_quat
                     trans_tar_in_base = part2trans(tar_pos, tar_quat)
 
-                    # tar err
-                    trans_base_in_cur = trans_inv(trans_cur_in_base)
-                    trans_tar_in_cur = trans_base_in_cur @ trans_tar_in_base
-                    se3_tar_in_cur = trans2se3(trans_tar_in_cur)
+                    # tar err in base frame (Cartesian space)
+                    trans_err_in_base = trans_tar_in_base @ trans_inv(trans_cur_in_base)
+                    se3_err_in_base = trans2se3(trans_err_in_base)
 
                     # mid err
-                    se3_mid_in_cur, _ = interp_se3(
-                        se3_tar_in_cur,
+                    se3_mid_in_base, _ = interp_se3(
+                        se3_err_in_base,
                         pos_limit=pos_limit,
                         rot_limit=rot_limit,
                     )
 
                     # calculate tau_comp
-                    tau_comp = np.zeros(7)
-                    tau_model = c_mat @ cur_dq[:-1] + g_vec
-                    tau_comp[:-1] = tau_model
+                    tau_comp = np.zeros(dofs["sum"])
+                    tau_model = c_mat @ arm_dq + g_vec
+                    tau_comp[:dofs["robot_arm"]] = tau_model
 
                     # calculate cmds
                     se3_cmds = ctrl_util_work(
                         kp=se3_kp,
                         kd=se3_kd,
-                        se3_tar=se3_mid_in_cur,
+                        se3_tar=se3_mid_in_base,
                         dse3_tar=np.zeros(6),
                         se3_cur=np.zeros(6),
                         dse3_cur=cur_dse3,
                         tau_comp=np.zeros(6),
                     ).reshape(-1, 1)
-                    se3_cmds[2] = 0.0
+                    # se3_cmds[1] = 0.0
 
                     jnt_cmds = jac.T @ se3_cmds.reshape(-1, 1)
                     jnt_cmds = jnt_cmds.reshape(-1)
-                    tau_comp[:-1] += jnt_cmds
-                    cmds = np.vstack((np.zeros(7), np.zeros(7), tau_comp,
-                                      np.zeros(7), np.zeros(7))).T
+                    tau_comp[:dofs["robot_arm"]] += jnt_cmds
+                    cmds = np.vstack((np.zeros(dofs["sum"]), np.zeros(dofs["sum"]), tau_comp,
+                                      np.zeros(dofs["sum"]), np.zeros(dofs["sum"]))).T
 
                 # set cmds
                 if cmds is not None:

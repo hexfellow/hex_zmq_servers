@@ -136,8 +136,8 @@ def main():
 
     # get states, and set cmds
     rate = HexRate(2e3)
-    pos_limit = 0.1
-    rot_limit = 0.2
+    pos_limit = 10.1
+    rot_limit = 10.2
     # Initialize target pose from init_pose
     is_init = True
     init_pos = np.array(init_pose[:3])
@@ -161,7 +161,7 @@ def main():
                 cur_pos, cur_quat = dyn_util.forward_kinematics(cur_q[:-1])[-1]
                 trans_cur_in_base = part2trans(cur_pos, cur_quat)
                 _, c_mat, g_vec, jac, _ = dyn_util.dynamic_params(
-                    cur_q[:-1], cur_dq[:-1])
+                    cur_q[:-1], cur_dq[:-1], base_frame=True)
                 cur_dse3 = jac @ cur_dq[:-1]
             else:
                 cur_ts = None
@@ -218,25 +218,24 @@ def main():
                         cmds = np.vstack(
                             (mid_q, np.zeros(7), tau_comp, joint_kp, joint_kd)).T
                 else:
-                    # check if far away from init pose
-                    if np.linalg.norm(cur_pos - init_pos) > 0.2:
-                        hex_log(HEX_LOG_LEVEL["info"], "Far away from init pose")
-                        is_init = True
-                        continue
+                    # # check if far away from init pose
+                    # if np.linalg.norm(cur_pos - init_pos) > 0.2:
+                    #     hex_log(HEX_LOG_LEVEL["info"], "Far away from init pose")
+                    #     is_init = True
+                    #     continue
 
                     # use init pose as target pose
                     tar_pos = init_pos
                     tar_quat = init_quat
                     trans_tar_in_base = part2trans(tar_pos, tar_quat)
 
-                    # tar err
-                    trans_base_in_cur = trans_inv(trans_cur_in_base)
-                    trans_tar_in_cur = trans_base_in_cur @ trans_tar_in_base
-                    se3_tar_in_cur = trans2se3(trans_tar_in_cur)
+                    # tar err in base frame (Cartesian space)
+                    trans_err_in_base = trans_tar_in_base @ trans_inv(trans_cur_in_base)
+                    se3_err_in_base = trans2se3(trans_err_in_base)
 
-                    # mid err
-                    se3_mid_in_cur, _ = interp_se3(
-                        se3_tar_in_cur,
+                    # mid err in base frame
+                    se3_mid_in_base, _ = interp_se3(
+                        se3_err_in_base,
                         pos_limit=pos_limit,
                         rot_limit=rot_limit,
                     )
@@ -246,23 +245,31 @@ def main():
                     tau_model = c_mat @ cur_dq[:-1] + g_vec
                     tau_comp[:-1] = tau_model
 
-                    # calculate cmds
+                    # calculate cmds in base frame (Cartesian space)
                     se3_cmds = ctrl_util_work(
                         kp=se3_kp,
                         kd=se3_kd,
-                        se3_tar=se3_mid_in_cur,
+                        se3_tar=se3_mid_in_base,
                         dse3_tar=np.zeros(6),
                         se3_cur=np.zeros(6),
                         dse3_cur=cur_dse3,
                         tau_comp=np.zeros(6),
                     ).reshape(-1, 1)
-                    se3_cmds[2] = 0.0
+                    se3_cmds[0] = -2.0
 
                     jnt_cmds = jac.T @ se3_cmds.reshape(-1, 1)
                     jnt_cmds = jnt_cmds.reshape(-1)
                     tau_comp[:-1] += jnt_cmds
                     cmds = np.vstack((np.zeros(7), np.zeros(7), tau_comp,
                                       np.zeros(7), np.zeros(7))).T
+
+                    # # calc kp kd
+                    # cmds = np.zeros((7, 5))
+                    # cmds[:, 1] = cur_q
+                    # cmds[:-1, 0] += se3_mid_in_base 
+                    # cmds[:, 2] = tau_comp
+                    # cmds[:-1, 3] = (jac.T @ se3_kp.reshape(-1, 1)).reshape(-1)
+                    # cmds[:-1, 4] = (jac.T @ se3_kd.reshape(-1, 1)).reshape(-1)
 
                 # set cmds
                 if cmds is not None:
