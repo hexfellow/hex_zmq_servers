@@ -1,23 +1,23 @@
 <mujocoinclude>
     <default class="j1_class">
-        <joint armature="0.01" damping="0.1" frictionloss="0.5" actuatorfrcrange="-28 28"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.2" actuatorfrcrange="-28 28"/>
     </default>
     <default class="j2_class">
-        <joint armature="0.01" damping="0.1" frictionloss="0.5" actuatorfrcrange="-28 28"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.2" actuatorfrcrange="-28 28"/>
     </default>
     <default class="j3_class">
-        <joint armature="0.01" damping="0.1" frictionloss="0.5" actuatorfrcrange="-28 28"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.2" actuatorfrcrange="-28 28"/>
     </default>
     <default class="j4_class">
-        <joint armature="0.01" damping="0.1" frictionloss="0.5" actuatorfrcrange="-28 28"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.2" actuatorfrcrange="-28 28"/>
     </default>
     <default class="j5_class">
-        <joint armature="0.01" damping="0.05" frictionloss="0.1" actuatorfrcrange="-8 8"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.05" actuatorfrcrange="-8 8"/>
     </default>
     <default class="j6_class">
-        <joint armature="0.01" damping="0.05" frictionloss="0.1" actuatorfrcrange="-8 8"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.05" actuatorfrcrange="-8 8"/>
     </default>
     <default class="jg_class">
-        <joint armature="0.01" damping="0.05" frictionloss="0.1" actuatorfrcrange="-8 8"/>
+        <joint armature="0.01" damping="0.02" frictionloss="0.05" actuatorfrcrange="-8 8"/>
     </default>
 </mujocoinclude>

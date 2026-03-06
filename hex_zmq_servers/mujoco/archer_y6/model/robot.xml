@@ -6,7 +6,7 @@
         # link 1
         <body name="link_1" pos="0 0 0.06655">
             <inertial pos="0.006 -0.0013 0.0209" quat="0.707107 0.707107 0 0" mass="0.2289" diaginertia="0.0004 0.0004 0.0002"/>
-            <joint name="joint_1" class="j1_class" pos="0 0 0" axis="0 0 1" range="-2.91 2.91" limited="true"/>
+            <joint name="joint_1" class="j1_class" pos="0 0 0" axis="0 0 1" range="-2.8623 2.8623" limited="true"/>
             <geom type="mesh" rgba="0.92549 0.92549 0.92549 1" mesh="arm_link_1"/>
 
             # link 2

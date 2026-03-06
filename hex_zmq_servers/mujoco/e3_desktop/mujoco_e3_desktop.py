@@ -114,8 +114,10 @@ class HexMujocoE3Desktop(HexMujocoBase):
             self.__mit_kd = np.ascontiguousarray(np.asarray(self.__mit_kd))
             self.__mit_ctrl = CtrlUtil()
         self.__gripper_ratio = 1.33 / 1.52
-        self._limits[0, -1] *= self.__gripper_ratio
-        self._limits[1, -1] *= self.__gripper_ratio
+        self._limits[self.__limit_idx["left_gripper"],
+                     0, :] *= self.__gripper_ratio
+        self._limits[self.__limit_idx["right_gripper"],
+                     0, :] *= self.__gripper_ratio
         self._dofs = np.array([
             len(self.__state_idx["left_arm"]),
             len(self.__state_idx["left_gripper"]),

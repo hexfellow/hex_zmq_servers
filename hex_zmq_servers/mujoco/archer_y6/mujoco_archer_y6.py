@@ -93,7 +93,6 @@ class HexMujocoArcherY6(HexMujocoBase):
             (np.arange(len(self.__state_idx["robot_gripper"])) +
              len(self.__state_idx["robot_arm"])).tolist(),
         }
-        print(f"self.__limit_idx: {self.__limit_idx}")
         self._limits = self.__model.jnt_range[np.concatenate(
             [self.__state_idx["robot_arm"], self.
              __state_idx["robot_gripper"]]), :].copy().reshape(-1, 1, 2)
@@ -102,7 +101,8 @@ class HexMujocoArcherY6(HexMujocoBase):
             self.__mit_kd = np.ascontiguousarray(np.asarray(self.__mit_kd))
             self.__mit_ctrl = CtrlUtil()
         self.__gripper_ratio = 1.33 / 1.52
-        self._limits[0, -1] *= self.__gripper_ratio
+        self._limits[self.__limit_idx["robot_gripper"],
+                     0, :] *= self.__gripper_ratio
         self._dofs = np.array([
             len(self.__state_idx["robot_arm"]),
             len(self.__state_idx["robot_gripper"])

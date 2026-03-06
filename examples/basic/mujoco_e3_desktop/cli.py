@@ -106,24 +106,8 @@ def main():
                 )
                 hex_log(HEX_LOG_LEVEL["info"], f"obj_states: {obj_states}")
 
-            cmds_left = np.array([
-                -0.5,
-                -0.0205679922,
-                2.57081467,
-                -0.978840246,
-                0.5,
-                0.0,
-                0.5,
-            ])
-            cmds_right = np.array([
-                0.5,
-                -0.0205679922,
-                2.57081467,
-                -0.978840246,
-                -0.5,
-                0.0,
-                0.5,
-            ])
+            cmds_left = np.array([0.0, -1.56, 3.0, 0.07, 0.0, 0.0, 0.5])
+            cmds_right = np.array([0.0, -1.56, 3.0, 0.07, 0.0, 0.0, 0.5])
 
             # hex_log(HEX_LOG_LEVEL["info"], f"cmds: {cmds}")
             client.set_cmds(cmds_left, "left")
