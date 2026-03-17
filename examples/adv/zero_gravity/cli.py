@@ -68,6 +68,7 @@ def main():
 
     # work loop
     rate = HexRate(500)
+    print_cnt = 0
     while True:
         # hexarm
         hexarm_states_hdr, hexarm_states = hexarm_client.get_states()
@@ -85,8 +86,11 @@ def main():
                 (cur_q.reshape(-1, 1), tau_comp.reshape(-1, 1)), axis=1)
             hexarm_client.set_cmds(cmds)
 
-            pos, quat = dyn_util.forward_kinematics(arm_q)[-1]
-            print(f"pos: {pos}; quat: {quat}")
+            print_cnt += 1
+            if print_cnt >= 100:
+                print_cnt = 0
+                pos, quat = dyn_util.forward_kinematics(arm_q)[-1]
+                print(f"pos: {pos}; quat: {quat}")
 
         rate.sleep()
 

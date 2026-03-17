@@ -59,10 +59,10 @@ def main():
             depth_hdr, depth_img = client.get_depth()
             if depth_hdr is not None:
                 curr_ts = hex_ts_now()
-                hex_log(
-                    HEX_LOG_LEVEL["info"],
-                    f"depth_seq: {depth_hdr['args']}; delay: {hex_ts_delta_ms(curr_ts, depth_hdr['ts'])}ms"
-                )
+                # hex_log(
+                #     HEX_LOG_LEVEL["info"],
+                #     f"depth_seq: {depth_hdr['args']}; delay: {hex_ts_delta_ms(curr_ts, depth_hdr['ts'])}ms"
+                # )
                 # if rotate_type is not None:
                 #     depth_img = cv2.rotate(depth_img, rotate_type)
                 # cv2.imshow("depth_img", depth_img)
@@ -83,10 +83,10 @@ def main():
             rgb_hdr, rgb_img = client.get_rgb()
             if rgb_hdr is not None:
                 curr_ts = hex_ts_now()
-                hex_log(
-                    HEX_LOG_LEVEL["info"],
-                    f"rgb_seq: {rgb_hdr['args']}; delay: {hex_ts_delta_ms(curr_ts, rgb_hdr['ts'])}ms"
-                )
+                # hex_log(
+                #     HEX_LOG_LEVEL["info"],
+                #     f"rgb_seq: {rgb_hdr['args']}; delay: {hex_ts_delta_ms(curr_ts, rgb_hdr['ts'])}ms"
+                # )
                 if rotate_type is not None:
                     rgb_img = cv2.rotate(rgb_img, rotate_type)
                 cv2.imshow("rgb_img", rgb_img)

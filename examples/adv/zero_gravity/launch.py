@@ -12,14 +12,14 @@ from hex_zmq_servers import HEX_ZMQ_SERVERS_PATH_DICT, HEX_ZMQ_CONFIGS_PATH_DICT
 from hex_zmq_servers import HEXARM_URDF_PATH_DICT
 
 # robot model config
-ARM_TYPE = "firefly_y6"
-GRIPPER_TYPE = "empty"
+ARM_TYPE = "archer_y6"
+GRIPPER_TYPE = "gp80"
 
 # server ports
 HEXARM_SRV_PORT = 12345
 
 # device config
-DEVICE_IP = "172.18.5.116"
+DEVICE_IP = "192.168.3.2"
 HEXARM_DEVICE_PORT = 8439
 
 # node params
