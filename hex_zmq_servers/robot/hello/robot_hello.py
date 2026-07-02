@@ -17,6 +17,7 @@ from ...hex_launch import hex_log, HEX_LOG_LEVEL
 from hex_robo_utils import (HexRate, hex_ts_delta_ms, hex_ts_now)
 from hex_device import HexDeviceApi, Arm, Hands
 from hex_device.motor_base import CommandType
+import hex_device
 
 ROBOT_CONFIG = {
     "device_ip": "172.18.8.161",
@@ -43,6 +44,7 @@ class HexRobotHello(HexRobotBase):
         realtime_mode: bool = False,
     ):
         HexRobotBase.__init__(self, realtime_mode)
+        hex_device.set_log_level("ERROR")
 
         try:
             device_ip = robot_config["device_ip"]

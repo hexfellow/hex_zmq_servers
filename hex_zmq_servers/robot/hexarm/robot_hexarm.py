@@ -113,6 +113,9 @@ class HexRobotHexarm(HexRobotBase):
                                           axis=0)
             self.__motor_idx["robot_gripper"] = (np.arange(gripper_dofs) +
                                                  arm_dofs).tolist()
+            # limit gripper position and torque
+            self.__gripper.set_pos_torque(1.0)
+            self.__gripper.set_positon_step(0.01)
 
         # modify variables
         self._dofs = np.array(self._dofs)
@@ -287,14 +290,14 @@ class HexRobotHexarm(HexRobotBase):
                 self._limits[self.__motor_idx["robot_gripper"], 0, 1],
             )
             if self.__gripper is not None:
-                gripper_cmd = self.__gripper.construct_mit_command(
-                    gripper_tar_pos,
-                    tar_vel[self.__motor_idx["robot_gripper"]],
-                    cmd_tor[self.__motor_idx["robot_gripper"]],
-                    cmd_kp[self.__motor_idx["robot_gripper"]],
-                    cmd_kd[self.__motor_idx["robot_gripper"]],
-                )
-                self.__gripper.motor_command(CommandType.MIT, gripper_cmd)
+                # gripper_cmd = self.__gripper.construct_mit_command(
+                #     gripper_tar_pos,
+                #     tar_vel[self.__motor_idx["robot_gripper"]],
+                #     cmd_tor[self.__motor_idx["robot_gripper"]],
+                #     cmd_kp[self.__motor_idx["robot_gripper"]],
+                #     cmd_kd[self.__motor_idx["robot_gripper"]],
+                # )
+                self.__gripper.motor_command(CommandType.POSITION, gripper_tar_pos)
 
         return True
 
